@@ -1,0 +1,46 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# turbo
+.turbo/
+
+# test output
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# environment — never commit real secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# local service state
+.docker-data/
+*.local.sqlite
+
+# generated exports and uploads (client content must never be committed)
+/storage/
+/tmp/
+*.pdf.generated
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*

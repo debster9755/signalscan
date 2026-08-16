@@ -1,0 +1,65 @@
+# Local development services (PRD §28: local environment, synthetic data only).
+# Nothing here is production infrastructure and no real client data may touch it.
+#
+#   pnpm dev:services        # up
+#   pnpm dev:services:down   # down
+
+services:
+  postgres:
+    # pgvector image so §17.1 asset_chunks.embedding works locally without
+    # a hosted vector provider (§15.1).
+    image: pgvector/pgvector:pg16
+    container_name: signalscan-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: signalscan
+      POSTGRES_PASSWORD: signalscan
+      POSTGRES_DB: signalscan
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U signalscan -d signalscan']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Captures every outbound email so invitations can be tested without a
+  # provider, and so nothing is ever delivered outside production (§28.1).
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: signalscan-mailpit
+    restart: unless-stopped
+    ports:
+      - '1025:1025' # SMTP
+      - '8025:8025' # web UI — http://localhost:8025
+    environment:
+      MP_MAX_MESSAGES: 500
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+  # S3-compatible private object storage, standing in for Supabase Storage.
+  # The bucket is private; downloads go through signed URLs only (§6.3).
+  minio:
+    image: minio/minio:latest
+    container_name: signalscan-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: signalscan
+      MINIO_ROOT_PASSWORD: signalscan-dev-secret
+    ports:
+      - '9000:9000'
+      - '9001:9001' # console — http://localhost:9001
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
+  minio-data:

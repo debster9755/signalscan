@@ -1,0 +1,8 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'workers/*'
+# esbuild ships a prebuilt binary and needs its postinstall to place it.
+# Vitest and tsx both depend on it, so the build is required, not optional.
+allowBuilds:
+  esbuild: true

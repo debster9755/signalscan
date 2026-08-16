@@ -1,0 +1,47 @@
+{
+  "name": "signalscan",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SignalScan — a five-day AI Marketing Opportunity Scan. Strategist evidence and decision system.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:services": "docker compose up -d",
+    "dev:services:down": "docker compose down",
+    "db:migrate": "tsx db/migrate.ts",
+    "db:seed": "tsx db/seed.ts",
+    "db:reset": "tsx db/migrate.ts --reset && tsx db/seed.ts",
+    "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "turbo run typecheck",
+    "test": "vitest run --project unit",
+    "test:watch": "vitest --project unit",
+    "test:coverage": "vitest run --project unit --coverage",
+    "test:integration": "vitest run --project integration",
+    "test:e2e": "playwright test",
+    "test:evals": "vitest run --project evals",
+    "build": "turbo run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@vitest/coverage-v8": "^3.0.5",
+    "@playwright/test": "^1.50.0",
+    "eslint": "^9.18.0",
+    "typescript-eslint": "^8.20.0",
+    "@eslint/js": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  }
+}
