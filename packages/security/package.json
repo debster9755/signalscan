@@ -7,9 +7,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./authorization": "./src/authorization/index.ts",
-    "./audit": "./src/audit/index.ts",
-    "./retention": "./src/retention/index.ts"
+    "./authorization": "./src/authorization/index.ts"
   },
   "scripts": {
     "lint": "eslint src",

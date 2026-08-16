@@ -92,7 +92,8 @@ Four analysis stages carry the work:
 - No live LLM calls — the adapters are specified but not yet implemented
 - No report exports (HTML, PDF, CSV, JSON, Markdown)
 - No authentication or user sign-in
-- No hosted deployment, background workers, or E2E and AI-eval suites (`pnpm test:e2e` and `pnpm test:evals` are wired but have no suites yet)
+- No hosted deployment or background workers
+- No E2E or AI-eval suites — `pnpm test:e2e` and `pnpm test:evals` are configured and exit cleanly, but there is nothing to run yet
 
 **Will never do, by design:**
 
@@ -135,7 +136,7 @@ Foundation and deterministic core, running locally against synthetic data.
 | **Git**            | any                    | `xcode-select --install`                                   | Cloning                           |
 | **Docker Desktop** | 4.x                    | `brew install --cask docker`                               | **Only** the database steps       |
 
-> `package.json` says Node `>=22.0.0`, but pnpm 11.22 itself requires **Node 22.13 or newer**. On Node 22.11 you will see `This version of pnpm requires at least Node.js v22.13`. Use Node 22.13+ or Node 24.
+> **Node 22.13 is the real floor** — that is what pnpm 11.22 requires, and what `engines.node` pins. On anything older you will see `This version of pnpm requires at least Node.js v22.13`.
 
 ### Steps
 
@@ -247,8 +248,8 @@ Two rules worth knowing:
 | `pnpm test`                                    | Unit tests                                                |
 | `pnpm test:coverage`                           | Unit tests with coverage gates                            |
 | `pnpm test:integration`                        | Integration tests — **needs services running and seeded** |
-| `pnpm test:e2e`                                | Browser end-to-end tests — _no suite yet_                 |
-| `pnpm test:evals`                              | AI evaluation gates — _no suite yet_                      |
+| `pnpm test:e2e`                                | Browser end-to-end tests — _no suite yet; exits 0_        |
+| `pnpm test:evals`                              | AI evaluation gates — _no suite yet; exits 0_             |
 | `pnpm build`                                   | Build everything                                          |
 
 ---
@@ -272,6 +273,8 @@ scripts/demo.ts    ✅ Zero-dependency demonstration of the core
 tests/             ✅ Fixtures and integration tests (E2E and evals to come)
 docs/              ✅ Quickstart and ADRs
 ```
+
+Packages resolve by name — `@signalscan/domain` for everything, or a subpath such as `@signalscan/domain/scoring` to keep a dependency legible.
 
 Business logic never imports a vendor SDK directly. Everything external sits behind an adapter in `packages/*/adapters` (§15.3), which is what makes the local, zero-credential setup possible.
 

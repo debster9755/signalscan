@@ -27,7 +27,7 @@ node -v     # must be v22.13.0 or higher
 pnpm -v     # 11.x — if missing, run: corepack enable
 ```
 
-> **Node 22.11 will fail.** `package.json` allows `>=22.0.0`, but pnpm 11.22 requires Node 22.13+. The error is `This version of pnpm requires at least Node.js v22.13`.
+> **Node 22.12 and below will fail.** pnpm 11.22 requires Node 22.13+, which is what `engines.node` pins. The error is `This version of pnpm requires at least Node.js v22.13`.
 
 ---
 
@@ -160,15 +160,15 @@ Before opening a PR, run what CI runs: `pnpm lint && pnpm format:check && pnpm t
 
 ## Troubleshooting
 
-| Symptom                                                 | Fix                                                                     |
-| ------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `This version of pnpm requires at least Node.js v22.13` | Upgrade Node to 22.13+ or 24. `package.json`'s `>=22.0.0` is too loose. |
-| `pnpm: command not found`                               | `corepack enable`, then reopen the terminal                             |
-| Corepack signature error on `corepack prepare`          | `npm i -g corepack@latest`, then `corepack enable`                      |
-| `pnpm dev` prints "No tasks were executed"              | Expected — there is no app to run yet. Use `pnpm demo`.                 |
-| `DATABASE_URL is not set`                               | You skipped step 6 — run `cp .env.example .env.local`                   |
-| `Migration failed: ECONNREFUSED`                        | Docker Desktop is not running, or `pnpm dev:services` was never run     |
-| `docker compose` cannot find the pipe / socket          | Start Docker Desktop and wait for the engine to report ready            |
-| Port 5432 already allocated                             | Stop your local Postgres, or remap the port in `docker-compose.yml`     |
-| `pnpm test:integration` fails to connect                | Run `pnpm dev:services` and `pnpm db:seed` first — it needs real data   |
-| `pnpm test:e2e` / `pnpm test:evals` find nothing        | Expected — those suites are not written yet                             |
+| Symptom                                                 | Fix                                                                   |
+| ------------------------------------------------------- | --------------------------------------------------------------------- |
+| `This version of pnpm requires at least Node.js v22.13` | Upgrade Node to 22.13+ or 24                                          |
+| `pnpm: command not found`                               | `corepack enable`, then reopen the terminal                           |
+| Corepack signature error on `corepack prepare`          | `npm i -g corepack@latest`, then `corepack enable`                    |
+| `pnpm dev` prints "No tasks were executed"              | Expected — there is no app to run yet. Use `pnpm demo`.               |
+| `DATABASE_URL is not set`                               | You skipped step 6 — run `cp .env.example .env.local`                 |
+| `Migration failed: ECONNREFUSED`                        | Docker Desktop is not running, or `pnpm dev:services` was never run   |
+| `docker compose` cannot find the pipe / socket          | Start Docker Desktop and wait for the engine to report ready          |
+| Port 5432 already allocated                             | Stop your local Postgres, or remap the port in `docker-compose.yml`   |
+| `pnpm test:integration` fails to connect                | Run `pnpm dev:services` and `pnpm db:seed` first — it needs real data |
+| `pnpm test:e2e` / `pnpm test:evals` report no tests     | Expected — both exit 0 until those suites are written                 |

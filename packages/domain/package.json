@@ -11,9 +11,7 @@
     "./business-case": "./src/business-case/index.ts",
     "./assessment": "./src/assessment/index.ts",
     "./intake": "./src/intake/index.ts",
-    "./workflow": "./src/workflow/index.ts",
-    "./brand": "./src/brand/index.ts",
-    "./opportunities": "./src/opportunities/index.ts"
+    "./workflow": "./src/workflow/index.ts"
   },
   "scripts": {
     "lint": "eslint src",

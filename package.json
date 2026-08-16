@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "packageManager": "pnpm@11.22.0",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "demo": "tsx scripts/demo.ts",
@@ -25,8 +25,8 @@
     "test:watch": "vitest --project unit",
     "test:coverage": "vitest run --project unit --coverage",
     "test:integration": "vitest run --project integration",
-    "test:e2e": "playwright test",
-    "test:evals": "vitest run --project evals",
+    "test:e2e": "playwright test --pass-with-no-tests",
+    "test:evals": "vitest run --project evals --passWithNoTests",
     "build": "turbo run build"
   },
   "devDependencies": {
