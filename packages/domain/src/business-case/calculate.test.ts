@@ -9,8 +9,8 @@ import {
   describeSavings,
   paybackMonths,
   resolveCurrency,
-} from './calculate.js';
-import type { ScenarioInputs } from './types.js';
+} from './calculate';
+import type { ScenarioInputs } from './types';
 
 /** A fully-specified workflow: 100 items/month, 30 minutes saved on each. */
 function completeInputs(overrides: Partial<ScenarioInputs> = {}): ScenarioInputs {

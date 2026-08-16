@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FACTORS, FACTOR_VERSION } from './factors.js';
+import { FACTORS, FACTOR_VERSION } from './factors';
 import {
   BAND_THRESHOLDS,
   MAX_RAW_SCORE,
@@ -9,7 +9,7 @@ import {
   calculateRawScore,
   rankOpportunities,
   validateFactors,
-} from './score.js';
+} from './score';
 import type {
   ConfidenceInput,
   FactorScore,
@@ -17,7 +17,7 @@ import type {
   OpportunityScore,
   PriorityBand,
   ScoredFactor,
-} from './types.js';
+} from './types';
 
 const FULL_CONFIDENCE: ConfidenceInput = {
   evidenceCoverage: 1,

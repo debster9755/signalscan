@@ -1,4 +1,4 @@
-import type { FactorCategory, FactorDefinition, FactorScore } from './types.js';
+import type { FactorCategory, FactorDefinition, FactorScore } from './types';
 
 /**
  * The 0–5 rubric scale. Exported because the scorecard UI (§14.3) has to render

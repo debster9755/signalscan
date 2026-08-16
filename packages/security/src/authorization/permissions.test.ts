@@ -11,7 +11,7 @@ import {
   canSeeOpportunityRankings,
   isAllowed,
   isClientRole,
-} from './permissions.js';
+} from './permissions';
 
 const member: PermissionContext = { isWorkspaceMember: true };
 

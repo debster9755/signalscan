@@ -1,12 +1,12 @@
-import { calculateConfidence, roundTo } from './confidence.js';
-import { FACTOR_KEYS, FACTOR_VERSION, getFactor, TOTAL_WEIGHT } from './factors.js';
+import { calculateConfidence, roundTo } from './confidence';
+import { FACTOR_KEYS, FACTOR_VERSION, getFactor, TOTAL_WEIGHT } from './factors';
 import type {
   CalculateScoreInput,
   FactorScore,
   OpportunityScore,
   PriorityBand,
   ScoredFactor,
-} from './types.js';
+} from './types';
 
 /**
  * Deterministic opportunity scoring — PRD §11.3.

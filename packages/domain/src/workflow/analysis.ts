@@ -1,4 +1,4 @@
-import type { ReworkFrequency, WorkflowStage } from './types.js';
+import type { ReworkFrequency, WorkflowStage } from './types';
 
 /**
  * Friction analysis — PRD §8.4: "The final report highlights the three largest

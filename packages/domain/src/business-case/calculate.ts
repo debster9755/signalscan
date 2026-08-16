@@ -1,5 +1,5 @@
-import { roundTo } from '../scoring/confidence.js';
-import type { ScenarioInputs, ScenarioName, ScenarioResult } from './types.js';
+import { roundTo } from '../scoring/confidence';
+import type { ScenarioInputs, ScenarioName, ScenarioResult } from './types';
 
 /**
  * §12.2 calculations.

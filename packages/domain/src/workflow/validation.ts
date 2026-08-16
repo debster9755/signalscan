@@ -3,7 +3,7 @@ import {
   type StageIssue,
   type WorkflowStage,
   type WorkflowValidationResult,
-} from './types.js';
+} from './types';
 
 /**
  * Workflow validation — PRD §8.4.

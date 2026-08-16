@@ -1,11 +1,11 @@
-import { isVisible, visibleQuestions } from './branching.js';
-import { QUESTIONS } from './questions.js';
+import { isVisible, visibleQuestions } from './branching';
+import { QUESTIONS } from './questions';
 import type {
   IntakeValidationResult,
   QuestionDefinition,
   ResponseMap,
   ValidationIssue,
-} from './types.js';
+} from './types';
 
 /**
  * Response validation — PRD §7.1, §7.2, §26.1.

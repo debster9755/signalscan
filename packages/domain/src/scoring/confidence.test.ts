@@ -5,8 +5,8 @@ import {
   CONFIDENCE_WEIGHTS,
   calculateConfidence,
   roundTo,
-} from './confidence.js';
-import type { ConfidenceInput } from './types.js';
+} from './confidence';
+import type { ConfidenceInput } from './types';
 
 const evenlySplit = (value: number): ConfidenceInput => ({
   evidenceCoverage: value,

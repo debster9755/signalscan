@@ -1,4 +1,4 @@
-import type { HardStop, HardStopCode } from './types.js';
+import type { HardStop, HardStopCode } from './types';
 
 /**
  * Hard stops — PRD §11.6.

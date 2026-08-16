@@ -42,7 +42,9 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov', 'json-summary'],
       include: ['packages/**/src/**/*.ts'],
-      exclude: ['**/*.test.ts', '**/index.ts', '**/*.d.ts'],
+      // Synthetic fixtures are data, not logic. They are exercised by `pnpm demo`
+      // and `pnpm db:seed`, and counting them would dilute the §26.1 gate.
+      exclude: ['**/*.test.ts', '**/index.ts', '**/*.d.ts', '**/fixtures/**'],
       thresholds: {
         // Global floor.
         branches: 80,

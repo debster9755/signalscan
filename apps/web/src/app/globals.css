@@ -1,0 +1,251 @@
+:root {
+  --bg: #fbfaf8;
+  --panel: #ffffff;
+  --ink: #1a1a19;
+  --muted: #6b6a66;
+  --line: #e4e1db;
+  --accent: #1c4e3f;
+
+  --recommend: #1c6b4a;
+  --recommend-bg: #e6f2ec;
+  --conditional: #8a6212;
+  --conditional-bg: #fbf1dc;
+  --backlog: #55565a;
+  --backlog-bg: #eeeeef;
+  --blocked: #a02a2a;
+  --blocked-bg: #fae9e8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a;
+    --panel: #1e1e23;
+    --ink: #eceae5;
+    --muted: #9d9b95;
+    --line: #33333a;
+    --accent: #7fd0af;
+
+    --recommend: #7fd0af;
+    --recommend-bg: #17332a;
+    --conditional: #e0b45f;
+    --conditional-bg: #33290f;
+    --backlog: #a8a8ad;
+    --backlog-bg: #2a2a30;
+    --blocked: #f08a86;
+    --blocked-bg: #3a1e1e;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family:
+    ui-sans-serif,
+    -apple-system,
+    'Segoe UI',
+    system-ui,
+    sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+
+h1 {
+  font-size: 1.9rem;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.05rem;
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+}
+
+.tagline {
+  color: var(--muted);
+  margin: 0 0 1.25rem;
+  max-width: 46rem;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+}
+
+.badge strong {
+  color: var(--ink);
+}
+
+section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.kicker {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  margin: 0 0 0.35rem;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat .value {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.stat .label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 0 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+td {
+  padding: 0.7rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.band {
+  display: inline-block;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 0.35rem;
+  white-space: nowrap;
+}
+
+.band-recommend {
+  color: var(--recommend);
+  background: var(--recommend-bg);
+}
+.band-conditional {
+  color: var(--conditional);
+  background: var(--conditional-bg);
+}
+.band-backlog {
+  color: var(--backlog);
+  background: var(--backlog-bg);
+}
+.band-blocked {
+  color: var(--blocked);
+  background: var(--blocked-bg);
+}
+
+.note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 1rem 0 0;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--line);
+}
+
+.stop {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--blocked);
+  border-radius: 0.4rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.stop code {
+  font-size: 0.85rem;
+  color: var(--blocked);
+}
+
+.stop p {
+  margin: 0.4rem 0 0;
+  font-size: 0.88rem;
+}
+
+.stop .resolution {
+  color: var(--muted);
+}
+
+ul.gates {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.9rem;
+}
+
+.bar {
+  height: 0.4rem;
+  border-radius: 999px;
+  background: var(--backlog-bg);
+  overflow: hidden;
+  min-width: 4rem;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+footer {
+  margin-top: 2.5rem;
+  font-size: 0.83rem;
+  color: var(--muted);
+}
+
+a {
+  color: inherit;
+}

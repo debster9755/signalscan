@@ -5,8 +5,8 @@ import {
   stripHiddenResponses,
   visibleGroups,
   visibleQuestions,
-} from './branching.js';
-import { northstarIntakeResponses } from './fixtures.js';
+} from './branching';
+import { northstarIntakeResponses } from './fixtures';
 import {
   ESTIMATED_COMPLETION_MINUTES,
   QUESTIONS,
@@ -14,14 +14,9 @@ import {
   getQuestion,
   questionsInGroup,
   resolveBrandRoute,
-} from './questions.js';
-import type { QuestionDefinition, ResponseMap } from './types.js';
-import {
-  canSubmitIntake,
-  isQuestionVisible,
-  validateIntake,
-  validateResponse,
-} from './validation.js';
+} from './questions';
+import type { QuestionDefinition, ResponseMap } from './types';
+import { canSubmitIntake, isQuestionVisible, validateIntake, validateResponse } from './validation';
 
 const q = (id: string): QuestionDefinition => {
   const found = getQuestion(id);

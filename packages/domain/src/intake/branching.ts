@@ -1,5 +1,5 @@
-import { QUESTIONS } from './questions.js';
-import type { QuestionDefinition, ResponseMap, VisibilityRule } from './types.js';
+import { QUESTIONS } from './questions';
+import type { QuestionDefinition, ResponseMap, VisibilityRule } from './types';
 
 /**
  * Question visibility — PRD §7.1, §7.3.

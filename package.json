@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "SignalScan — a five-day AI Marketing Opportunity Scan. Strategist evidence and decision system.",
+  "description": "SignalScan \u2014 a five-day AI Marketing Opportunity Scan. Strategist evidence and decision system.",
   "license": "UNLICENSED",
   "packageManager": "pnpm@11.22.0",
   "engines": {
@@ -44,6 +44,7 @@
     "vitest": "^3.0.5"
   },
   "dependencies": {
+    "@signalscan/domain": "workspace:*",
     "dotenv": "^17.4.2",
     "postgres": "^3.4.9",
     "zod": "^3.24.1"

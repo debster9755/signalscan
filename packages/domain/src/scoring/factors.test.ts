@@ -8,8 +8,8 @@ import {
   TOTAL_WEIGHT,
   getFactor,
   validateFactorRegistry,
-} from './factors.js';
-import type { FactorDefinition } from './types.js';
+} from './factors';
+import type { FactorDefinition } from './types';
 
 describe('factor registry v1 (§11.2)', () => {
   it('defines exactly the sixteen factors in the specification', () => {

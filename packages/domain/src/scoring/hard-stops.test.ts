@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { detectHardStops, type HardStopContext } from './hard-stops.js';
-import type { HardStopCode } from './types.js';
+import { detectHardStops, type HardStopContext } from './hard-stops';
+import type { HardStopCode } from './types';
 
 /** A workflow that clears all eight §11.6 conditions. */
 function cleanContext(overrides: Partial<HardStopContext> = {}): HardStopContext {

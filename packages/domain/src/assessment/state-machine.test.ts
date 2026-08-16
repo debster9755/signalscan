@@ -11,7 +11,7 @@ import {
   isTerminal,
   nextLinearStatus,
   transition,
-} from './state-machine.js';
+} from './state-machine';
 
 const at = (status: AssessmentStatus): AssessmentState => ({
   status,

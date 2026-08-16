@@ -11,27 +11,26 @@
  * decision logic working before deciding whether to set up services.
  */
 import {
-  BASE_SCENARIO,
-  FIXTURE_CALCULATED_AT,
-  NORTHSTAR_OPPORTUNITIES,
-  type OpportunitySeed,
-} from '../tests/fixtures/northstar-portfolio.js';
-import { FACTORS } from '../packages/domain/src/scoring/factors.js';
-import { detectHardStops } from '../packages/domain/src/scoring/hard-stops.js';
-import { calculateOpportunityScore } from '../packages/domain/src/scoring/score.js';
-import type {
-  FactorScore,
-  OpportunityScore,
-  ScoredFactor,
-} from '../packages/domain/src/scoring/types.js';
-import {
   calculateScenario,
   describeSavings,
   resolveCurrency,
-} from '../packages/domain/src/business-case/calculate.js';
-import { analyseFriction, waitRatio } from '../packages/domain/src/workflow/analysis.js';
-import { getTemplate } from '../packages/domain/src/workflow/templates.js';
-import type { WorkflowStage } from '../packages/domain/src/workflow/types.js';
+} from '@signalscan/domain/business-case';
+import {
+  BASE_SCENARIO,
+  FIXTURE_CALCULATED_AT,
+  NORTHSTAR_OPPORTUNITIES,
+  northstarObservedStages,
+  type OpportunitySeed,
+} from '@signalscan/domain/fixtures';
+import {
+  calculateOpportunityScore,
+  detectHardStops,
+  FACTORS,
+  type FactorScore,
+  type OpportunityScore,
+  type ScoredFactor,
+} from '@signalscan/domain/scoring';
+import { analyseFriction, waitRatio } from '@signalscan/domain/workflow';
 
 const CURRENCY = resolveCurrency('INR');
 
@@ -68,51 +67,6 @@ function score(seed: OpportunitySeed): OpportunityScore {
   });
 }
 
-/** The §29 ten-stage flow, with the timings the fixture observed. */
-function observedStages(): WorkflowStage[] {
-  const template = getTemplate('general_campaign')!;
-  const timing = [
-    { work: 30, elapsed: 240, wait: 210, rework: 'rare' },
-    { work: 180, elapsed: 960, wait: 780, rework: 'rare' },
-    { work: 240, elapsed: 2880, wait: 2640, rework: 'often' },
-    { work: 120, elapsed: 1440, wait: 1320, rework: 'sometimes' },
-    { work: 480, elapsed: 4320, wait: 3840, rework: 'sometimes' },
-    { work: 960, elapsed: 7200, wait: 6240, rework: 'often' },
-    { work: 120, elapsed: 5760, wait: 5640, rework: 'almost_always' },
-    { work: 90, elapsed: 11520, wait: 11430, rework: 'sometimes' },
-    { work: 240, elapsed: 480, wait: 240, rework: 'rare' },
-    { work: 180, elapsed: 2880, wait: 2700, rework: 'never' },
-  ] as const;
-
-  return template.stages.map((stage, i) => {
-    const t = timing[i]!;
-    return {
-      id: `stage-${i + 1}`,
-      assessmentId: 'demo-assessment',
-      order: i + 1,
-      name: stage.name,
-      description: stage.description,
-      trigger: stage.trigger,
-      inputAssetIds: [],
-      ownerRole: stage.suggestedOwnerRole,
-      contributorRoles: [],
-      approverRoles: [],
-      toolNames: [],
-      actions: [],
-      outputs: [...stage.suggestedOutputs],
-      workTimeMinutes: t.work,
-      elapsedTimeMinutes: t.elapsed,
-      waitTimeMinutes: t.wait,
-      reworkFrequency: t.rework,
-      reworkReasons: [],
-      riskTags: [...stage.riskTags],
-      sourceCitationIds: [],
-      captureMethod: 'interview',
-      status: 'operator_validated',
-    };
-  });
-}
-
 function days(minutes: number | null): string {
   return minutes === null ? '—' : `${(minutes / 60 / 24).toFixed(1)} days`;
 }
@@ -123,7 +77,7 @@ function main(): void {
 
   // ── 1. Where the time actually goes (§8) ──────────────────────────────────
   rule('1. Campaign flow — where the time actually goes (§8)');
-  const stages = observedStages();
+  const stages = northstarObservedStages();
   const friction = analyseFriction(stages);
   const ratio = waitRatio(friction);
   console.log(`  Stages mapped            ${stages.length}`);

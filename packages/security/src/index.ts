@@ -6,4 +6,4 @@
  * are specified in §22 and §25 but not yet built; they get re-exported here as
  * they land.
  */
-export * from './authorization/index.js';
+export * from './authorization/index';

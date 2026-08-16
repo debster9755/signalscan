@@ -21,20 +21,20 @@
 import './load-env.js';
 import { reportFailure } from './fail.js';
 import postgres from 'postgres';
-import { northstarIntakeResponses } from '../packages/domain/src/intake/fixtures.js';
-import { QUESTIONS } from '../packages/domain/src/intake/questions.js';
-import { FACTORS } from '../packages/domain/src/scoring/factors.js';
-// The portfolio is shared with `pnpm demo` so both score exactly the same
-// six candidates and can never drift apart (§29).
 import {
   BASE_SCENARIO,
   FIXTURE_CALCULATED_AT,
   NORTHSTAR_OPPORTUNITIES,
-} from '../tests/fixtures/northstar-portfolio.js';
-import { detectHardStops } from '../packages/domain/src/scoring/hard-stops.js';
-import { calculateOpportunityScore } from '../packages/domain/src/scoring/score.js';
-import type { FactorScore, ScoredFactor } from '../packages/domain/src/scoring/types.js';
-import { getTemplate } from '../packages/domain/src/workflow/templates.js';
+} from '@signalscan/domain/fixtures';
+import { northstarIntakeResponses, QUESTIONS } from '@signalscan/domain/intake';
+import {
+  calculateOpportunityScore,
+  detectHardStops,
+  FACTORS,
+  type FactorScore,
+  type ScoredFactor,
+} from '@signalscan/domain/scoring';
+import { getTemplate } from '@signalscan/domain/workflow';
 
 const CHANNELS = ['email', 'paid_social', 'web', 'events', 'search'] as const;
 

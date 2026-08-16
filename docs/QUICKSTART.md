@@ -139,6 +139,7 @@ Before opening a PR, run what CI runs: `pnpm lint && pnpm format:check && pnpm t
 - **Never put real client data in the repo** — not in fixtures, tests, or screenshots (§29, §33). The Northstar Cloud fixture is entirely invented and is the only data any developer should see.
 - **Keep `.env.local` local.** It is gitignored. The committed `.env.example` is safe precisely because it contains no real credential.
 - **Leave `LLM_PROVIDER=mock`** unless you specifically need live extraction. Mock mode is deterministic, offline, and free.
+- **The page states where its numbers came from.** If the badge says "in-memory fixture" when you expected Postgres, your `DATABASE_URL` is wrong or the database is not seeded — check that before debugging anything else.
 
 ### macOS
 
@@ -160,15 +161,15 @@ Before opening a PR, run what CI runs: `pnpm lint && pnpm format:check && pnpm t
 
 ## Troubleshooting
 
-| Symptom                                                 | Fix                                                                   |
-| ------------------------------------------------------- | --------------------------------------------------------------------- |
-| `This version of pnpm requires at least Node.js v22.13` | Upgrade Node to 22.13+ or 24                                          |
-| `pnpm: command not found`                               | `corepack enable`, then reopen the terminal                           |
-| Corepack signature error on `corepack prepare`          | `npm i -g corepack@latest`, then `corepack enable`                    |
-| `pnpm dev` prints "No tasks were executed"              | Expected — there is no app to run yet. Use `pnpm demo`.               |
-| `DATABASE_URL is not set`                               | You skipped step 6 — run `cp .env.example .env.local`                 |
-| `Migration failed: ECONNREFUSED`                        | Docker Desktop is not running, or `pnpm dev:services` was never run   |
-| `docker compose` cannot find the pipe / socket          | Start Docker Desktop and wait for the engine to report ready          |
-| Port 5432 already allocated                             | Stop your local Postgres, or remap the port in `docker-compose.yml`   |
-| `pnpm test:integration` fails to connect                | Run `pnpm dev:services` and `pnpm db:seed` first — it needs real data |
-| `pnpm test:e2e` / `pnpm test:evals` report no tests     | Expected — both exit 0 until those suites are written                 |
+| Symptom                                                 | Fix                                                                           |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `This version of pnpm requires at least Node.js v22.13` | Upgrade Node to 22.13+ or 24                                                  |
+| `pnpm: command not found`                               | `corepack enable`, then reopen the terminal                                   |
+| Corepack signature error on `corepack prepare`          | `npm i -g corepack@latest`, then `corepack enable`                            |
+| Port 3000 already in use                                | Stop the other process, or `pnpm --filter @signalscan/web dev -- --port 3001` |
+| `DATABASE_URL is not set`                               | You skipped step 7 — run `cp .env.example .env.local`                         |
+| `Migration failed: ECONNREFUSED`                        | Docker Desktop is not running, or `pnpm dev:services` was never run           |
+| `docker compose` cannot find the pipe / socket          | Start Docker Desktop and wait for the engine to report ready                  |
+| Port 5432 already allocated                             | Stop your local Postgres, or remap the port in `docker-compose.yml`           |
+| `pnpm test:integration` fails to connect                | Run `pnpm dev:services` and `pnpm db:seed` first — it needs real data         |
+| `pnpm test:e2e` / `pnpm test:evals` report no tests     | Expected — both exit 0 until those suites are written                         |

@@ -1,4 +1,4 @@
-import type { QuestionDefinition } from './types.js';
+import type { QuestionDefinition } from './types';
 
 /**
  * The twenty guided-intake questions — PRD §7.2, transcribed.

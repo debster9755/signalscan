@@ -6,8 +6,8 @@
  * (`@signalscan/domain/scoring`) stay available and remain the better choice
  * inside the monorepo — they keep the dependency legible.
  */
-export * from './assessment/index.js';
-export * from './business-case/index.js';
-export * from './intake/index.js';
-export * from './scoring/index.js';
-export * from './workflow/index.js';
+export * from './assessment/index';
+export * from './business-case/index';
+export * from './intake/index';
+export * from './scoring/index';
+export * from './workflow/index';

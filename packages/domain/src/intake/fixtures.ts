@@ -1,4 +1,4 @@
-import type { ResponseMap } from './types.js';
+import type { ResponseMap } from './types';
 
 /**
  * A complete, valid intake for the synthetic Northstar Cloud client (§29).

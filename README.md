@@ -16,10 +16,14 @@ No Docker, no database, no API key, no account.
 git clone https://github.com/debster9755/signalscan.git
 cd signalscan
 corepack enable && pnpm install --frozen-lockfile
-pnpm demo
+
+pnpm dev     # → http://localhost:3000   the scan, in a browser
+pnpm demo    # → the same numbers, in your terminal
 ```
 
-`pnpm demo` runs the real scoring engine, the real hard-stop rules and the real business-case arithmetic over the synthetic Northstar Cloud fixture, and prints the result. Full stepwise instructions, macOS and Windows: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
+Both run the real scoring engine, the real hard-stop rules and the real business-case arithmetic over the synthetic Northstar Cloud fixture. Neither needs Docker, a database or a key — the page computes everything in memory and says so on the page. Point `DATABASE_URL` at a seeded database and it reads that instead.
+
+Full stepwise instructions, macOS and Windows: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
 
 ---
 
@@ -84,10 +88,11 @@ Four analysis stages carry the work:
 - Enforce the assessment lifecycle and workspace RBAC across four roles
 - Create the schema, apply row-level security, and load a full synthetic client
 - Prove tenant isolation by connecting as the real application role and failing to read across workspaces
+- Serve all of the above as a page at `localhost:3000`, reading a seeded database when one is reachable and computing in memory when it is not
 
 **Cannot — not built yet:**
 
-- **No web UI.** `pnpm dev` starts nothing today; `apps/web` does not exist. Everything runs from the CLI.
+- **The web app is one read-only page.** It renders the scan; it cannot yet run one. No intake flow, no evidence upload, no approve/reject actions.
 - No document parsing — PDF/DOCX/PPTX ingestion and citation extraction are next
 - No live LLM calls — the adapters are specified but not yet implemented
 - No report exports (HTML, PDF, CSV, JSON, Markdown)
@@ -119,7 +124,8 @@ Foundation and deterministic core, running locally against synthetic data.
 | Workspace RBAC (§4.2)                                 | ✅ Complete                           |
 | Schema, RLS policies, Northstar Cloud seed (§17, §29) | ✅ Complete, isolation proven by test |
 | Document parsing, LLM adapters, report exports        | 🚧 Next                               |
-| Web application (§14)                                 | 🚧 Next                               |
+| Read-only scan page (§14, first slice)                | ✅ Runs at `localhost:3000`           |
+| Intake, upload and approval UI (§14)                  | 🚧 Next                               |
 | Auth, E2E suite, AI eval gates, deployment            | 📋 Planned                            |
 
 ---
@@ -195,12 +201,12 @@ Note the last row: it scores higher than two backlog items and is still blocked.
 
 | URL                                      | What it is                                             | Needs               |
 | ---------------------------------------- | ------------------------------------------------------ | ------------------- |
-| _(none)_                                 | The SignalScan web app — **not built yet**             | —                   |
+| [localhost:3000](http://localhost:3000)  | **The scan page** — started by `pnpm dev`              | nothing             |
 | [localhost:8025](http://localhost:8025)  | Mailpit — every outbound email, captured               | `pnpm dev:services` |
 | [localhost:9001](http://localhost:9001)  | MinIO console (`signalscan` / `signalscan-dev-secret`) | `pnpm dev:services` |
 | `postgresql://localhost:5432/signalscan` | Postgres + pgvector (`signalscan` / `signalscan`)      | `pnpm dev:services` |
 
-There is **no browser UI yet** — `apps/web` is the next milestone. Until then `pnpm demo` is the way to see the product's logic working.
+Only `localhost:3000` needs no setup. The other three appear once `pnpm dev:services` is running.
 
 Windows steps, day-to-day workflow and troubleshooting: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
 
@@ -237,7 +243,7 @@ Two rules worth knowing:
 | Command                                        | Does                                                      |
 | ---------------------------------------------- | --------------------------------------------------------- |
 | `pnpm demo`                                    | **Run the deterministic core in memory — no services**    |
-| `pnpm dev`                                     | Run the application — _no-op today; `apps/web` not built_ |
+| `pnpm dev`                                     | **Run the web app at `localhost:3000`**                   |
 | `pnpm dev:services` / `pnpm dev:services:down` | Start / stop local Postgres, Mailpit and MinIO            |
 | `pnpm db:migrate`                              | Apply pending migrations and RLS policies                 |
 | `pnpm db:migrate --dry-run`                    | List what would run                                       |
@@ -266,7 +272,7 @@ packages/
   documents/       —  Parsers, chunking, citation extraction
   reports/         —  HTML, PDF, CSV, JSON, Markdown renderers
   ui/              —  Design system
-apps/web/          —  Next.js application and API routes
+apps/web/          ✅ Next.js scan page (read-only first slice)
 workers/           —  Durable analysis, export and deletion jobs
 db/                ✅ Migrations, RLS policies, synthetic seed
 scripts/demo.ts    ✅ Zero-dependency demonstration of the core

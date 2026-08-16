@@ -5,18 +5,21 @@
  * conditional, two backlog items, one candidate with no cost data at all, and
  * one hard-stop case that outscores two backlog items and is still blocked.
  *
- * This lives here rather than inside `db/seed.ts` because two entry points need
- * the same portfolio and they must never drift apart:
+ * This lives here rather than inside `db/seed.ts` because three entry points
+ * need the same portfolio and they must never drift apart:
  *
  *   - `db/seed.ts`      loads it into Postgres (needs Docker)
  *   - `scripts/demo.ts` scores it in memory (needs nothing)
+ *   - `apps/web`        falls back to it when no database is reachable
  *
  * Everything here is invented. §29 forbids real client logos, copy, personal
  * data or confidential examples in committed fixtures.
  */
-import type { ScenarioInputs } from '../../packages/domain/src/business-case/types.js';
-import { type HardStopContext } from '../../packages/domain/src/scoring/hard-stops.js';
-import type { ConfidenceInput, FactorScore } from '../../packages/domain/src/scoring/types.js';
+import type { ScenarioInputs } from '../business-case/types';
+import { getTemplate } from '../workflow/templates';
+import type { WorkflowStage } from '../workflow/types';
+import { type HardStopContext } from '../scoring/hard-stops';
+import type { ConfidenceInput, FactorScore } from '../scoring/types';
 
 /** §11.4 — a well-evidenced candidate. */
 export const CONFIDENT: ConfidenceInput = {
@@ -183,3 +186,56 @@ export const NORTHSTAR_OPPORTUNITIES: OpportunitySeed[] = [
  * §32.1 requires reproducibility; a wall clock would not deliver it.
  */
 export const FIXTURE_CALCULATED_AT = new Date('2026-08-16T09:00:00.000Z');
+
+/**
+ * The §29 ten-stage campaign flow with the timings the fixture observed.
+ *
+ * The shape of this data is the whole finding: 26 days elapsed against 1.8 days
+ * of hands-on work. Legal review is a single 8-day wait, and brand review is
+ * sent back almost every time.
+ */
+export function northstarObservedStages(): WorkflowStage[] {
+  const template = getTemplate('general_campaign');
+  if (!template) throw new Error('general_campaign template is missing');
+
+  const timing = [
+    { work: 30, elapsed: 240, wait: 210, rework: 'rare' },
+    { work: 180, elapsed: 960, wait: 780, rework: 'rare' },
+    { work: 240, elapsed: 2880, wait: 2640, rework: 'often' },
+    { work: 120, elapsed: 1440, wait: 1320, rework: 'sometimes' },
+    { work: 480, elapsed: 4320, wait: 3840, rework: 'sometimes' },
+    { work: 960, elapsed: 7200, wait: 6240, rework: 'often' },
+    { work: 120, elapsed: 5760, wait: 5640, rework: 'almost_always' },
+    { work: 90, elapsed: 11520, wait: 11430, rework: 'sometimes' },
+    { work: 240, elapsed: 480, wait: 240, rework: 'rare' },
+    { work: 180, elapsed: 2880, wait: 2700, rework: 'never' },
+  ] as const;
+
+  return template.stages.map((stage, i) => {
+    const t = timing[i]!;
+    return {
+      id: `stage-${i + 1}`,
+      assessmentId: 'northstar-fixture',
+      order: i + 1,
+      name: stage.name,
+      description: stage.description,
+      trigger: stage.trigger,
+      inputAssetIds: [],
+      ownerRole: stage.suggestedOwnerRole,
+      contributorRoles: [],
+      approverRoles: [],
+      toolNames: [],
+      actions: [],
+      outputs: [...stage.suggestedOutputs],
+      workTimeMinutes: t.work,
+      elapsedTimeMinutes: t.elapsed,
+      waitTimeMinutes: t.wait,
+      reworkFrequency: t.rework,
+      reworkReasons: [],
+      riskTags: [...stage.riskTags],
+      sourceCitationIds: [],
+      captureMethod: 'interview',
+      status: 'operator_validated',
+    };
+  });
+}

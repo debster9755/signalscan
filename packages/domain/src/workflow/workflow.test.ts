@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { HIGHLIGHT_COUNT, analyseFriction, waitRatio } from './analysis.js';
+import { HIGHLIGHT_COUNT, analyseFriction, waitRatio } from './analysis';
 import {
   DEFAULT_NORMALIZED_STAGES,
   TEMPLATE_KEYS,
   WORKFLOW_TEMPLATES,
   getTemplate,
-} from './templates.js';
-import type { WorkflowStage } from './types.js';
+} from './templates';
+import type { WorkflowStage } from './types';
 import {
   MAX_STAGES,
   MIN_STAGES,
@@ -14,7 +14,7 @@ import {
   canCertifyFlow,
   compareFlows,
   validateWorkflow,
-} from './validation.js';
+} from './validation';
 
 let sequence = 0;
 function makeStage(overrides: Partial<WorkflowStage> = {}): WorkflowStage {

@@ -1,4 +1,4 @@
-import type { ConfidenceInput, ConfidenceResult } from './types.js';
+import type { ConfidenceInput, ConfidenceResult } from './types';
 
 /**
  * Confidence model — PRD §11.4.

@@ -1,4 +1,4 @@
-import type { RiskTag } from './types.js';
+import type { RiskTag } from './types';
 
 /**
  * Capture Path A — templates (PRD §8.1).
