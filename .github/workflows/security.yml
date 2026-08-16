@@ -1,0 +1,56 @@
+name: Security
+
+# PRD §27.1 steps 9-10 and §22.1 ("Dependency and secret scanning in GitHub").
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Weekly, so a newly-disclosed advisory in an unchanged dependency is still
+    # caught rather than waiting for the next pull request.
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  dependencies:
+    name: Dependency vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Audit
+        run: pnpm audit --audit-level moderate
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so a secret committed earlier and later removed is
+          # still found — it is still in the objects, and still leaked.
+          fetch-depth: 0
+      - name: Scan for committed secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v3

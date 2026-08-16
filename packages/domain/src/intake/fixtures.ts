@@ -99,7 +99,14 @@ export function northstarIntakeResponses(overrides: ResponseMap = {}): ResponseM
       ratings: { findability: 3, completeness: 3, structure: 2, freshness: 4 },
     },
     'data.monthly_volume': {
-      values: { campaigns: 6, briefs: 12, channels: 4, masterAssets: 22, variants: 180, markets: 3 },
+      values: {
+        campaigns: 6,
+        briefs: 12,
+        channels: 4,
+        masterAssets: 22,
+        variants: 180,
+        markets: 3,
+      },
     },
     'data.current_cost': {
       values: {
@@ -135,7 +142,10 @@ export function northstarIntakeResponses(overrides: ResponseMap = {}): ResponseM
         },
       ],
     },
-    'risk.controls': { selections: ['confidential_data', 'regulated_claims'], notes: 'Uptime claims need legal sign-off.' },
+    'risk.controls': {
+      selections: ['confidential_data', 'regulated_claims'],
+      notes: 'Uptime claims need legal sign-off.',
+    },
     'risk.ai_policy': {
       approvedTools: ['Internal assistant'],
       prohibitedTools: ['Public image generators'],

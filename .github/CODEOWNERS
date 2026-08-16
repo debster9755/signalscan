@@ -1,0 +1,20 @@
+# PRD §27.3 — required reviewers for the areas where a mistake is expensive.
+#
+# Replace the placeholder handles with real GitHub teams before enabling
+# branch protection, or every pull request will block on a reviewer that does
+# not exist.
+
+# Scoring is the product's reproducibility claim. A silent weight change
+# invalidates every historical recommendation.
+/packages/domain/src/scoring/      @product-owner @engineering-lead
+
+# The tenant boundary.
+/packages/security/                @security-owner @engineering-lead
+/db/migrations/                    @database-owner @engineering-lead
+/db/policies/                      @security-owner @database-owner
+
+# Prompts are product surface, not implementation detail.
+/packages/ai/prompts/              @product-owner @ai-owner
+
+/.github/workflows/                @engineering-lead
+/docs/threat-model.md              @security-owner

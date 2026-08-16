@@ -16,7 +16,12 @@ import {
   resolveBrandRoute,
 } from './questions.js';
 import type { QuestionDefinition, ResponseMap } from './types.js';
-import { canSubmitIntake, isQuestionVisible, validateIntake, validateResponse } from './validation.js';
+import {
+  canSubmitIntake,
+  isQuestionVisible,
+  validateIntake,
+  validateResponse,
+} from './validation.js';
 
 const q = (id: string): QuestionDefinition => {
   const found = getQuestion(id);
@@ -70,12 +75,16 @@ describe('the twenty questions (§7.2)', () => {
   });
 
   it('makes only the cost question optional', () => {
-    const optional = QUESTIONS.filter((question) => !question.required).map((question) => question.id);
+    const optional = QUESTIONS.filter((question) => !question.required).map(
+      (question) => question.id,
+    );
     expect(optional).toEqual(['data.current_cost']);
   });
 
   it('permits "unknown" only where §7.2 says so', () => {
-    const unknownAllowed = QUESTIONS.filter((question) => question.allowUnknown).map((question) => question.id);
+    const unknownAllowed = QUESTIONS.filter((question) => question.allowUnknown).map(
+      (question) => question.id,
+    );
     expect(unknownAllowed.sort()).toEqual(
       [
         'business.success_measure',
@@ -213,14 +222,28 @@ describe('response validation (§7.2)', () => {
   describe('Q13 monthly volume — unknown is a valid answer (§7.1)', () => {
     it('accepts nulls because the question permits unknown', () => {
       const issues = validateResponse(q('data.monthly_volume'), {
-        values: { campaigns: null, briefs: null, channels: null, masterAssets: null, variants: null, markets: null },
+        values: {
+          campaigns: null,
+          briefs: null,
+          channels: null,
+          masterAssets: null,
+          variants: null,
+          markets: null,
+        },
       });
       expect(issues).toEqual([]);
     });
 
     it('still rejects a negative volume', () => {
       const issues = validateResponse(q('data.monthly_volume'), {
-        values: { campaigns: -1, briefs: null, channels: null, masterAssets: null, variants: null, markets: null },
+        values: {
+          campaigns: -1,
+          briefs: null,
+          channels: null,
+          masterAssets: null,
+          variants: null,
+          markets: null,
+        },
       });
       expect(issues[0]?.message).toMatch(/cannot be negative/);
     });
@@ -261,10 +284,7 @@ describe('response validation (§7.2)', () => {
 
     it('requires an https URL, because §6.3 forbids plain http in production', () => {
       const issues = validateResponse(q('brand.competitors'), {
-        rows: [
-          { ...competitor('One'), officialUrl: 'http://example.com/x' },
-          competitor('Two'),
-        ],
+        rows: [{ ...competitor('One'), officialUrl: 'http://example.com/x' }, competitor('Two')],
       });
       expect(issues.some((i) => i.message.includes('https://'))).toBe(true);
     });
@@ -331,7 +351,9 @@ describe('submission gate (§7.1)', () => {
   it('blocks submission and explains why', () => {
     const responses = northstarIntakeResponses();
     delete responses['flow.trigger'];
-    responses['data.quality'] = { ratings: { findability: 9, completeness: 3, structure: 3, freshness: 3 } };
+    responses['data.quality'] = {
+      ratings: { findability: 9, completeness: 3, structure: 3, freshness: 3 },
+    };
 
     const result = canSubmitIntake(responses);
     expect(result.canSubmit).toBe(false);
@@ -398,7 +420,10 @@ describe('branching engine (§7.1, §7.3)', () => {
 
   it('hides a question whose controlling question is itself hidden', () => {
     // Otherwise a nested branch can resurrect through a stale parent answer.
-    const responses: ResponseMap = { 'test.controller': 'yes', 'test.dependent': { onBrand: ['a'] } };
+    const responses: ResponseMap = {
+      'test.controller': 'yes',
+      'test.dependent': { onBrand: ['a'] },
+    };
     expect(isVisible(dependent, responses, set)).toBe(false);
     expect(isVisible(nested, responses, set)).toBe(false);
   });

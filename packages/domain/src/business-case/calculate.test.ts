@@ -122,11 +122,7 @@ describe('calculateScenario', () => {
   });
 
   it('leaves an unknown cost unknown instead of estimating it (§12.1)', () => {
-    const result = calculateScenario(
-      'base',
-      completeInputs({ loadedHourlyCost: null }),
-      'INR',
-    );
+    const result = calculateScenario('base', completeInputs({ loadedHourlyCost: null }), 'INR');
 
     expect(result.annualHoursSaved).toBe(600); // still derivable
     expect(result.annualLabourValue).toBeNull(); // not invented

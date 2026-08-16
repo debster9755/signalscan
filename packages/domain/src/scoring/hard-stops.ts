@@ -12,11 +12,7 @@ import type { HardStop, HardStopCode } from './types.js';
  */
 
 export type SystemAccessStatus =
-  | 'available'
-  | 'available_with_approval'
-  | 'unavailable'
-  | 'prohibited'
-  | 'unknown';
+  'available' | 'available_with_approval' | 'unavailable' | 'prohibited' | 'unknown';
 
 export interface RequiredSystemAccess {
   systemName: string;
@@ -161,15 +157,14 @@ export function detectHardStops(context: HardStopContext): HardStop[] {
       brandReviewMissing ? 'brand' : null,
       legalReviewMissing ? 'legal' : null,
     ].filter((value): value is string => value !== null);
-    stops.push(stop('review_required_but_unavailable', `Missing reviewer for: ${missing.join(', ')}.`));
+    stops.push(
+      stop('review_required_but_unavailable', `Missing reviewer for: ${missing.join(', ')}.`),
+    );
   }
 
   if (!context.policy.modelAndDataFlowPermitted) {
     stops.push(
-      stop(
-        'policy_prohibits_model_or_data_flow',
-        context.policy.restrictionNote ?? undefined,
-      ),
+      stop('policy_prohibits_model_or_data_flow', context.policy.restrictionNote ?? undefined),
     );
   }
 

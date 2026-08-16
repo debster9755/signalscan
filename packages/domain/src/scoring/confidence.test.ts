@@ -54,7 +54,9 @@ describe('confidence model (§11.4)', () => {
     for (let i = 0; i <= 100; i += 1) {
       const { multiplier } = calculateConfidence(evenlySplit(i / 100));
       expect(multiplier).toBeGreaterThanOrEqual(CONFIDENCE_MULTIPLIER_FLOOR);
-      expect(multiplier).toBeLessThanOrEqual(CONFIDENCE_MULTIPLIER_FLOOR + CONFIDENCE_MULTIPLIER_RANGE);
+      expect(multiplier).toBeLessThanOrEqual(
+        CONFIDENCE_MULTIPLIER_FLOOR + CONFIDENCE_MULTIPLIER_RANGE,
+      );
     }
   });
 

@@ -159,7 +159,9 @@ describe('§4.3 client visibility rule', () => {
   it('hides internal Red Baron notes from every client role', () => {
     for (const role of CLIENT_ROLES) {
       expect(allow(role, 'view_internal_notes'), role).toBe(false);
-      expect(can(role, 'view_internal_notes', member).reason).toMatch(/never visible to the client/);
+      expect(can(role, 'view_internal_notes', member).reason).toMatch(
+        /never visible to the client/,
+      );
     }
     expect(allow('read_only', 'view_internal_notes')).toBe(false);
   });

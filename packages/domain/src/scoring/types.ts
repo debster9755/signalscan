@@ -13,10 +13,7 @@ export type FactorScore = 0 | 1 | 2 | 3 | 4 | 5;
 
 /** §11.2 — the four weighted categories, summing to 100 points. */
 export type FactorCategory =
-  | 'business_value'
-  | 'feasibility'
-  | 'risk_safety'
-  | 'adoption_readiness';
+  'business_value' | 'feasibility' | 'risk_safety' | 'adoption_readiness';
 
 /** §11.5 */
 export type PriorityBand = 'recommend' | 'conditional' | 'backlog' | 'blocked';

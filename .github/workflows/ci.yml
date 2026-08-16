@@ -1,0 +1,136 @@
+name: CI
+
+# PRD §27.1 — runs on every pull request.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Lint, typecheck and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # §27.1 step 1 — install from the lockfile, never resolve fresh.
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Type check
+        run: pnpm typecheck
+
+      # §26.1 — the scoring package must hold 100% branch coverage. The
+      # threshold lives in vitest.config.ts and fails the run on its own.
+      - name: Unit tests with coverage
+        run: pnpm test:coverage
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 7
+
+  database:
+    name: Migrations and integration tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: signalscan
+          POSTGRES_PASSWORD: signalscan
+          POSTGRES_DB: signalscan
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U signalscan -d signalscan"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://signalscan:signalscan@localhost:5432/signalscan
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # §27.1 step 6 — migrations must apply cleanly to an empty database.
+      - name: Apply migrations to a clean database
+        run: pnpm db:migrate
+
+      # Re-running must be a no-op. A migration that is not idempotent will
+      # break every deploy after the first.
+      - name: Verify migrations are idempotent
+        run: pnpm db:migrate
+
+      - name: Seed synthetic fixtures
+        run: pnpm db:seed
+
+      # §26.2 — includes the cross-workspace isolation tests that prove RLS.
+      - name: Integration tests
+        run: pnpm test:integration
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+  evals:
+    name: AI evaluation smoke suite
+    runs-on: ubuntu-latest
+    # §27.1 step 11 — only when prompts or the AI package change. The full gold
+    # sets in §26.5 run on a schedule; this is the fast guard.
+    if: |
+      github.event_name == 'push' ||
+      contains(join(github.event.pull_request.labels.*.name, ','), 'area:ai')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Runs against the fixture-replay provider — no API key, no network, and
+      # therefore no client content leaving CI.
+      - name: Evaluation suite
+        env:
+          LLM_PROVIDER: mock
+        run: pnpm test:evals

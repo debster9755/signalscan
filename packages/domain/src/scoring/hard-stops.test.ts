@@ -35,9 +35,7 @@ describe('hard stops (§11.6)', () => {
 
   describe('accountable owner', () => {
     it('fires when the owner is null', () => {
-      expect(codes(cleanContext({ accountableOwnerRole: null }))).toContain(
-        'no_accountable_owner',
-      );
+      expect(codes(cleanContext({ accountableOwnerRole: null }))).toContain('no_accountable_owner');
     });
 
     it('fires when the owner is only whitespace, not just when it is missing', () => {
@@ -198,7 +196,9 @@ describe('hard stops (§11.6)', () => {
         (s) => s.code === 'policy_prohibits_model_or_data_flow',
       );
       expect(found).toBeDefined();
-      expect(found?.reason).toBe('Client AI policy prohibits the model or data flow this workflow needs.');
+      expect(found?.reason).toBe(
+        'Client AI policy prohibits the model or data flow this workflow needs.',
+      );
     });
   });
 

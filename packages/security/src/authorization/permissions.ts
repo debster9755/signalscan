@@ -89,7 +89,9 @@ const deny = (reason: string): Grant => ({ effect: 'deny', reason });
 const allowIf = (condition: PermissionCondition): Grant => ({ effect: 'allow_if', condition });
 
 const DENY_NOT_PERMITTED = deny('This role does not have that capability in this workspace.');
-const DENY_READ_ONLY = deny('Read-only members can view shared final content but cannot act on it.');
+const DENY_READ_ONLY = deny(
+  'Read-only members can view shared final content but cannot act on it.',
+);
 const DENY_REVIEW_ONLY = deny('This role may review but not edit. Use the review action instead.');
 const DENY_REQUEST_ONLY = deny(
   'This role may request deletion but not perform it. An RB admin must confirm.',
@@ -102,9 +104,10 @@ const DENY_REQUEST_ONLY = deny(
  */
 const MATRIX: Readonly<Record<Role, Readonly<Record<Capability, Grant>>>> = Object.freeze({
   system_admin: Object.freeze(
-    Object.fromEntries(
-      CAPABILITIES.map((c) => [c, allowIf('requires_support_mode')]),
-    ) as Record<Capability, Grant>,
+    Object.fromEntries(CAPABILITIES.map((c) => [c, allowIf('requires_support_mode')])) as Record<
+      Capability,
+      Grant
+    >,
   ),
 
   rb_admin: Object.freeze({
@@ -258,7 +261,8 @@ const CONDITION_RESOLVERS: Record<
       ? { allowed: true, reason: 'Written override reason supplied.' }
       : {
           allowed: false,
-          reason: 'A score override requires a written reason and is recorded in the audit log (§11.1).',
+          reason:
+            'A score override requires a written reason and is recorded in the audit log (§11.1).',
         },
 
   requires_client_raw_export_enabled: (context) =>
@@ -309,11 +313,7 @@ export function can(
 }
 
 /** Convenience for call sites that only need the boolean. */
-export function isAllowed(
-  role: Role,
-  capability: Capability,
-  context: PermissionContext,
-): boolean {
+export function isAllowed(role: Role, capability: Capability, context: PermissionContext): boolean {
   return can(role, capability, context).allowed;
 }
 

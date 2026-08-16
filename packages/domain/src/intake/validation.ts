@@ -37,9 +37,7 @@ function optionValues(question: QuestionDefinition): Set<string> {
 }
 
 function optionsRequiringExplanation(question: QuestionDefinition): Set<string> {
-  return new Set(
-    (question.options ?? []).filter((o) => o.requiresExplanation).map((o) => o.value),
-  );
+  return new Set((question.options ?? []).filter((o) => o.requiresExplanation).map((o) => o.value));
 }
 
 function validateTextField(
@@ -94,7 +92,9 @@ function validateSelections(question: QuestionDefinition, value: unknown): Valid
   const allowed = optionValues(question);
   for (const selection of selections) {
     if (typeof selection !== 'string' || !allowed.has(selection)) {
-      issues.push(issue(question.id, 'selections', `"${String(selection)}" is not a valid option.`));
+      issues.push(
+        issue(question.id, 'selections', `"${String(selection)}" is not a valid option.`),
+      );
     }
   }
 
@@ -104,9 +104,7 @@ function validateSelections(question: QuestionDefinition, value: unknown): Valid
 
   const { minSelections, maxSelections } = question;
   if (minSelections !== undefined && selections.length < minSelections) {
-    issues.push(
-      issue(question.id, 'selections', `Select at least ${minSelections} option(s).`),
-    );
+    issues.push(issue(question.id, 'selections', `Select at least ${minSelections} option(s).`));
   }
   if (maxSelections !== undefined && selections.length > maxSelections) {
     issues.push(issue(question.id, 'selections', `Select at most ${maxSelections} option(s).`));
@@ -325,7 +323,9 @@ function validateRatingMatrix(question: QuestionDefinition, value: unknown): Val
       continue;
     }
     if (rating < min || rating > max) {
-      issues.push(issue(question.id, `ratings.${name}`, `Rating must be between ${min} and ${max}.`));
+      issues.push(
+        issue(question.id, `ratings.${name}`, `Rating must be between ${min} and ${max}.`),
+      );
     }
   }
   return issues;
@@ -423,7 +423,11 @@ function validateAssetSelector(question: QuestionDefinition, value: unknown): Va
     );
   }
 
-  if (record.offBrand !== undefined && record.offBrand !== null && !Array.isArray(record.offBrand)) {
+  if (
+    record.offBrand !== undefined &&
+    record.offBrand !== null &&
+    !Array.isArray(record.offBrand)
+  ) {
     issues.push(issue(question.id, 'offBrand', 'Expected a list of off-brand examples.'));
   }
 

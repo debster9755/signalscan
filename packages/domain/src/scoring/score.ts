@@ -76,7 +76,10 @@ export function validateFactors(factors: ScoredFactor[]): void {
     }
 
     // §11.1: "A strategist may override a factor only with a written reason."
-    if (factor.overridden && (!factor.overrideReason || factor.overrideReason.trim().length === 0)) {
+    if (
+      factor.overridden &&
+      (!factor.overrideReason || factor.overrideReason.trim().length === 0)
+    ) {
       throw new ScoringError(
         `Factor "${factor.key}" is marked overridden but carries no override reason (§11.1).`,
       );

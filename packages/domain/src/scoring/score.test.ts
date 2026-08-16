@@ -53,14 +53,17 @@ describe('validateFactors', () => {
   });
 
   it('rejects a factor key that is not in the registry', () => {
-    const factors = [...factorsAt(3), {
-      key: 'invented_factor',
-      score: 5 as FactorScore,
-      weight: 10,
-      rationale: '',
-      sourceCitationIds: [],
-      overridden: false,
-    }];
+    const factors = [
+      ...factorsAt(3),
+      {
+        key: 'invented_factor',
+        score: 5 as FactorScore,
+        weight: 10,
+        rationale: '',
+        sourceCitationIds: [],
+        overridden: false,
+      },
+    ];
     expect(() => validateFactors(factors)).toThrow(/Unknown factor "invented_factor"/);
   });
 

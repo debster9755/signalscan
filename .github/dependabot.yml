@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # One pull request per ecosystem area keeps the review queue honest —
+      # fifteen individual patch bumps get rubber-stamped, three grouped ones
+      # get read.
+      dev-tooling:
+        patterns: ['eslint*', 'prettier', 'typescript', 'typescript-eslint', '@types/*', 'turbo']
+      testing:
+        patterns: ['vitest', '@vitest/*', '@playwright/*']
+      production:
+        patterns: ['*']
+        exclude-patterns:
+          [
+            'eslint*',
+            'prettier',
+            'typescript',
+            'typescript-eslint',
+            '@types/*',
+            'turbo',
+            'vitest',
+            '@vitest/*',
+            '@playwright/*',
+          ]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

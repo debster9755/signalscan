@@ -261,8 +261,7 @@ export const QUESTIONS: readonly QuestionDefinition[] = Object.freeze([
     version: 1,
     group: 'data',
     order: 11,
-    label:
-      'Which tools contain briefs, assets, approvals, audience data and performance results?',
+    label: 'Which tools contain briefs, assets, approvals, audience data and performance results?',
     answerType: 'structured_list',
     required: true,
     allowUnknown: false,
@@ -530,7 +529,9 @@ function assertQuestionSetIsWellFormed(): void {
   const orders = QUESTIONS.map((q) => q.order).sort((a, b) => a - b);
   for (let i = 0; i < orders.length; i += 1) {
     if (orders[i] !== i + 1) {
-      throw new Error(`Intake question order is not contiguous: expected ${i + 1}, got ${orders[i]}.`);
+      throw new Error(
+        `Intake question order is not contiguous: expected ${i + 1}, got ${orders[i]}.`,
+      );
     }
   }
 }
