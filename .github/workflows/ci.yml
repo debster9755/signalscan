@@ -95,6 +95,12 @@ jobs:
       - name: Seed synthetic fixtures
         run: pnpm db:seed
 
+      # Re-seeding must replace the fixture, not fail on it. This caught a
+      # cleanup that deleted organisations before the workspaces referencing
+      # them, so the second `pnpm db:seed` anyone ran blew up on a foreign key.
+      - name: Verify the seed is idempotent
+        run: pnpm db:seed
+
       # §26.2 — includes the cross-workspace isolation tests that prove RLS.
       - name: Integration tests
         run: pnpm test:integration

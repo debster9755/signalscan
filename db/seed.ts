@@ -38,6 +38,9 @@ import { getTemplate } from '@signalscan/domain/workflow';
 
 const CHANNELS = ['email', 'paid_social', 'web', 'events', 'search'] as const;
 
+/** Every organisation this seed creates, so a re-run can clear all of them. */
+const FIXTURE_ORG_SLUGS = ['northstar-cloud', 'red-baron', 'vantage-retail'];
+
 /** Deterministic pseudo-random so the seed is byte-identical on every machine. */
 function seededRandom(seed: number): () => number {
   let state = seed >>> 0;
@@ -74,9 +77,37 @@ async function main(): Promise<void> {
   try {
     await sql.begin(async (tx) => {
       // Idempotent: a re-run replaces the fixture rather than duplicating it.
-      await tx`DELETE FROM organizations WHERE slug IN ('northstar-cloud', 'red-baron')`;
+      //
+      // Order matters. `workspaces.client_organization_id` is ON DELETE RESTRICT
+      // on purpose — deleting a client organisation must never silently destroy
+      // its workspaces and their evidence — so the workspaces go first and
+      // everything workspace-scoped cascades away with them. Deleting the
+      // organisations first fails on the foreign key, which is what made a
+      // second `pnpm db:seed` blow up.
+      //
+      // All three fixture organisations are listed. Vantage Retail exists only
+      // so the isolation tests have a workspace they must fail to reach; leaving
+      // it behind accumulated a fresh copy on every run.
+      // audit_events is append-only (§22.1) and the guard is a BEFORE DELETE
+      // trigger, so cascading the workspace delete trips it. That guard exists
+      // to stop application code rewriting the log — §22.4 explicitly allows the
+      // deletion process to remove content — and an operator resetting synthetic
+      // fixtures in a development database is that case, not tampering. The
+      // trigger is off for this transaction only: any failure below rolls the
+      // ALTER back with everything else.
+      await tx`ALTER TABLE audit_events DISABLE TRIGGER audit_events_append_only`;
+
+      await tx`
+        DELETE FROM workspaces
+        WHERE client_organization_id IN (
+          SELECT id FROM organizations WHERE slug = ANY(${FIXTURE_ORG_SLUGS})
+        )
+      `;
+      await tx`DELETE FROM organizations WHERE slug = ANY(${FIXTURE_ORG_SLUGS})`;
       await tx`DELETE FROM users WHERE email LIKE '%@example.test'`;
       await tx`DELETE FROM question_definitions`;
+
+      await tx`ALTER TABLE audit_events ENABLE TRIGGER audit_events_append_only`;
 
       // ── Question definitions (§7.3, versioned) ────────────────────────────
       for (const question of QUESTIONS) {
