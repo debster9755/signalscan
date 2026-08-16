@@ -8,6 +8,33 @@ It is deliberately **not** an autonomous consultant. Software structures the evi
 
 The full specification is [`signal-scan-prd.md`](../signal-scan-prd.md). Section references throughout the code (`§11.4`, `§8.4`) point at it.
 
+> **New here? Read [`QUICKSTART.md`](QUICKSTART.md)** — stepwise setup, what the code can and cannot do today, and which features need API keys.
+
+---
+
+## Top business benefits
+
+- **Turns "we need AI" into a funded decision.** Five days, fixed scope, one scored recommendation — instead of an open-ended discovery retainer.
+- **Kills the wrong projects early.** Eight hard stops (no data, no owner, unresolved legal risk) block an opportunity outright, regardless of how good its score looks.
+- **Makes the decision defensible.** Every number traces to a source document, a page and an excerpt. No black-box scoring.
+- **Creates a reusable baseline.** The KPI baseline captured on day one is what any later pilot gets measured against.
+- **Compounds across clients.** The same 16-factor rubric scores every engagement, so patterns become benchmark data.
+
+## Business metrics it is built to move
+
+Baselines come from the client at intake; the engine models the delta. These are **modelled projections from client-supplied numbers, not guarantees.**
+
+| Metric                           | Where it comes from                                   | What the scan does with it                               |
+| -------------------------------- | ----------------------------------------------------- | -------------------------------------------------------- |
+| **Time-to-decision**             | Length of the current "should we use AI here?" cycle  | Fixed at 5 business days                                 |
+| **Workflow cycle time**          | Intake Q04 baseline + observed stage timings          | Finds the top-3 wait / work / rework points (§8)         |
+| **Annual value of the workflow** | Hours saved × loaded rate, plus error and speed value | Conservative / base / upside scenarios (§12.2)           |
+| **Payback period**               | Value vs. pilot cost                                  | Returns `null` — never a fake number — when value ≤ cost |
+| **Rework rate**                  | Rework stages in the mapped flow                      | Quantified per stage, not estimated                      |
+| **Approval turnaround**          | Stage elapsed vs. work time                           | Surfaces waiting time as its own line item               |
+
+Two deliberate constraints worth knowing up front: the model **never estimates a missing input** (it records what it is waiting on), and it **never calls a saving "headcount reduction"** unless the client has explicitly confirmed that.
+
 ---
 
 ## The loop
@@ -51,32 +78,103 @@ Foundation and deterministic core, running locally against synthetic data.
 | Web application (§14)                                 | 🚧 Next                               |
 | Auth, E2E suite, AI eval gates, deployment            | 📋 Planned                            |
 
+**In plain terms:** this is a tested engine and data layer, not yet a running application. There is no UI, no login, no file upload and no AI calls yet — see [what it can and cannot do](QUICKSTART.md#3-what-it-can-do-today).
+
 ---
 
-## Getting started
+## Prerequisites
 
-Requires **Node 22+**, **pnpm 11+** and **Docker**.
+| Need               | Version     | Why                                                 |
+| ------------------ | ----------- | --------------------------------------------------- |
+| **Node**           | 22 or newer | Runtime                                             |
+| **pnpm**           | 11 or newer | Workspace manager — npm and yarn will not work here |
+| **Docker Desktop** | any current | Postgres + pgvector, Mailpit, MinIO                 |
+| **Git**            | any current | —                                                   |
+| **RAM**            | 8 GB free   | Three containers plus the test suite                |
+
+**No API keys, no cloud accounts, no credit card.** Everything below runs offline against synthetic data.
+
+---
+
+## Run it on a MacBook (stepwise)
+
+Works on both Apple Silicon (M1–M4) and Intel.
+
+**1. Install Homebrew** — skip if `brew -v` already works.
 
 ```bash
-# 1. Install from the lockfile
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+**2. Install the toolchain**
+
+```bash
+brew install node@22 pnpm git
+brew install --cask docker
+```
+
+**3. Start Docker Desktop** — open it from Applications and wait for the whale icon to stop animating. `pnpm dev:services` fails until the engine is actually up.
+
+```bash
+open -a Docker
+docker info > /dev/null 2>&1 && echo "Docker ready"
+```
+
+**4. Clone and install**
+
+```bash
+git clone https://github.com/debster9755/signalscan.git
+cd signalscan
 pnpm install --frozen-lockfile
+```
 
-# 2. Copy the environment template. Every value in it is safe; nothing here
-#    needs a real credential to run locally.
+**5. Create your env file** — every value in the template is safe and already works locally.
+
+```bash
 cp .env.example .env.local
+```
 
-# 3. Start Postgres (with pgvector), Mailpit and MinIO
+**6. Start the local services** — Postgres + pgvector, Mailpit, MinIO.
+
+```bash
 pnpm dev:services
+```
 
-# 4. Create the schema, apply row-level security, and load synthetic data
+**7. Create the schema and load synthetic data**
+
+```bash
 pnpm db:migrate
 pnpm db:seed
 ```
+
+**8. Confirm it worked** — the seed prints the scored portfolio shown below.
+
+```bash
+pnpm test              # 304 unit tests
+pnpm test:integration  # 28 tenant-isolation tests, needs step 7
+```
+
+**9. Stop the containers when you are done**
+
+```bash
+pnpm dev:services:down
+```
+
+**macOS gotchas**
+
+- If port 5432 is taken, a local Postgres is already running: `brew services stop postgresql@16`.
+- Apple Silicon needs no special flags — all three images are multi-arch.
+- If `pnpm` is not found after `brew install`, open a new terminal tab.
 
 <details>
 <summary><strong>Windows (PowerShell) equivalents</strong> — §34 asks for these explicitly</summary>
 
 ```powershell
+winget install OpenJS.NodeJS.LTS Docker.DockerDesktop Git.Git
+npm install -g pnpm@latest
+
+git clone https://github.com/debster9755/signalscan.git
+cd signalscan
 pnpm install --frozen-lockfile
 Copy-Item .env.example .env.local
 pnpm dev:services
@@ -85,7 +183,7 @@ pnpm db:migrate
 pnpm db:seed
 ```
 
-`pnpm dev:services` needs Docker Desktop running. If `docker compose` reports it cannot find the pipe, start Docker Desktop and wait for the engine before retrying.
+`pnpm dev:services` needs Docker Desktop running. If `docker compose` reports it cannot find the pipe, start Docker Desktop and wait for the engine before retrying. Use PowerShell, not `cmd`.
 </details>
 
 The seed prints the scored portfolio, which is the fastest way to confirm everything is wired up:
@@ -106,22 +204,22 @@ Note the last row: it scores higher than two backlog items and is still blocked.
 
 ## Commands
 
-| Command                                        | Does                                                      |
-| ---------------------------------------------- | --------------------------------------------------------- |
-| `pnpm dev`                                     | Run the application                                       |
-| `pnpm dev:services` / `pnpm dev:services:down` | Start / stop local Postgres, Mailpit and MinIO            |
-| `pnpm db:migrate`                              | Apply pending migrations and RLS policies                 |
-| `pnpm db:migrate --dry-run`                    | List what would run                                       |
-| `pnpm db:seed`                                 | Load the synthetic Northstar Cloud fixture                |
-| `pnpm db:reset`                                | Drop the schema, re-migrate, re-seed                      |
-| `pnpm lint` / `pnpm format`                    | Lint / format                                             |
-| `pnpm typecheck`                               | Type-check every package                                  |
-| `pnpm test`                                    | Unit tests                                                |
-| `pnpm test:coverage`                           | Unit tests with coverage gates                            |
-| `pnpm test:integration`                        | Integration tests — **needs services running and seeded** |
-| `pnpm test:e2e`                                | Browser end-to-end tests                                  |
-| `pnpm test:evals`                              | AI evaluation gates                                       |
-| `pnpm build`                                   | Build everything                                          |
+| Command                                        | Does                                                       |
+| ---------------------------------------------- | ---------------------------------------------------------- |
+| `pnpm dev`                                     | Run the application — **no-op today**, `apps/web` is empty |
+| `pnpm dev:services` / `pnpm dev:services:down` | Start / stop local Postgres, Mailpit and MinIO             |
+| `pnpm db:migrate`                              | Apply pending migrations and RLS policies                  |
+| `pnpm db:migrate --dry-run`                    | List what would run                                        |
+| `pnpm db:seed`                                 | Load the synthetic Northstar Cloud fixture                 |
+| `pnpm db:reset`                                | Drop the schema, re-migrate, re-seed                       |
+| `pnpm lint` / `pnpm format`                    | Lint / format                                              |
+| `pnpm typecheck`                               | Type-check every package                                   |
+| `pnpm test`                                    | Unit tests                                                 |
+| `pnpm test:coverage`                           | Unit tests with coverage gates                             |
+| `pnpm test:integration`                        | Integration tests — **needs services running and seeded**  |
+| `pnpm test:e2e`                                | Browser end-to-end tests                                   |
+| `pnpm test:evals`                              | AI evaluation gates                                        |
+| `pnpm build`                                   | Build everything                                           |
 
 ---
 
