@@ -169,6 +169,13 @@ pnpm test
 
 **Stop at step 6** unless you need the database. Steps 7–10 add Postgres, Mailpit and MinIO:
 
+> ### 📦 You never supply any data — the dummy data ships with the repo
+>
+> - **`pnpm db:migrate` creates the tables and applies the row-level-security policies. Structure only, no data.**
+> - **`pnpm db:seed` loads Northstar Cloud: an entirely invented client — 25 campaigns, 2 competitors, a 10-stage workflow, 6 opportunities.**
+>
+> It is committed to the repository precisely so that **nobody ever needs real client data to run or demo this** (§29, §33). The seed does not hard-code the scores either — it runs the real §11 engine and writes what comes out, so seeding doubles as proof that the domain layer and the schema agree.
+
 ```bash
 # 7. Environment template — every value in it is safe, no real credential needed
 cp .env.example .env.local
@@ -209,6 +216,7 @@ Note the last row: it scores higher than two backlog items and is still blocked.
 Only `localhost:3000` needs no setup. The other three appear once `pnpm dev:services` is running.
 
 Windows steps, day-to-day workflow and troubleshooting: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
+Presenting this to someone? **[docs/DEMO.md](docs/DEMO.md)** is a timed run sheet.
 
 ---
 

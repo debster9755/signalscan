@@ -9,6 +9,8 @@ Get SignalScan running and see the decision engine work. Two tiers — pick one.
 
 Nothing on this page needs an API key, an account, or network access after `pnpm install`.
 
+Demonstrating this to an audience? **[DEMO.md](DEMO.md)** is a timed run sheet with a pre-flight checklist.
+
 ---
 
 ## Prerequisites
@@ -65,6 +67,13 @@ Run it twice. The numbers are byte-identical — that is the point (§32.1).
 ---
 
 ## Tier B — full local stack
+
+> ### 📦 There is no data to prepare — it is already in the repo
+>
+> - **`pnpm db:migrate` creates the tables and applies the row-level-security policies. Structure only, no data.**
+> - **`pnpm db:seed` loads Northstar Cloud: an entirely invented client — 25 campaigns, 2 competitors, a 10-stage workflow, 6 opportunities.**
+>
+> Every name, figure and document in it is fictional and committed to the repository, so **you never have to supply client data to run or demo this** (§29, §33). Never add real client data to it.
 
 Do Tier A first, then:
 
