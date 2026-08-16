@@ -17,20 +17,23 @@
  * seed doubles as an end-to-end check that the domain layer and the schema
  * agree.
  */
+// Must come first: every import below may read process.env.
+import './load-env.js';
+import { reportFailure } from './fail.js';
 import postgres from 'postgres';
 import { northstarIntakeResponses } from '../packages/domain/src/intake/fixtures.js';
 import { QUESTIONS } from '../packages/domain/src/intake/questions.js';
 import { FACTORS } from '../packages/domain/src/scoring/factors.js';
+// The portfolio is shared with `pnpm demo` so both score exactly the same
+// six candidates and can never drift apart (§29).
 import {
-  detectHardStops,
-  type HardStopContext,
-} from '../packages/domain/src/scoring/hard-stops.js';
+  BASE_SCENARIO,
+  FIXTURE_CALCULATED_AT,
+  NORTHSTAR_OPPORTUNITIES,
+} from '../tests/fixtures/northstar-portfolio.js';
+import { detectHardStops } from '../packages/domain/src/scoring/hard-stops.js';
 import { calculateOpportunityScore } from '../packages/domain/src/scoring/score.js';
-import type {
-  ConfidenceInput,
-  FactorScore,
-  ScoredFactor,
-} from '../packages/domain/src/scoring/types.js';
+import type { FactorScore, ScoredFactor } from '../packages/domain/src/scoring/types.js';
 import { getTemplate } from '../packages/domain/src/workflow/templates.js';
 
 const CHANNELS = ['email', 'paid_social', 'web', 'events', 'search'] as const;
@@ -57,150 +60,6 @@ function factorSet(
     overridden: false,
   }));
 }
-
-const CONFIDENT: ConfidenceInput = {
-  evidenceCoverage: 0.82,
-  sourceAgreement: 0.75,
-  evidenceRecency: 0.9,
-  reviewerValidation: 0.6,
-};
-
-const THIN: ConfidenceInput = {
-  evidenceCoverage: 0.35,
-  sourceAgreement: 0.4,
-  evidenceRecency: 0.5,
-  reviewerValidation: 0.1,
-};
-
-/** A workflow with no daily user and no measurable outcome — §29's hard-stop case. */
-const BLOCKED_CONTEXT: HardStopContext = {
-  accountableOwnerRole: 'Marketing Operations Lead',
-  dailyUserRole: null,
-  measurableOutcome: { kpi: null, proxyAccepted: false },
-  requiredSystems: [{ systemName: 'Customer CRM', status: 'prohibited' }],
-  review: {
-    brandReviewRequired: true,
-    brandReviewerAvailable: true,
-    legalReviewRequired: true,
-    legalReviewerAvailable: true,
-  },
-  policy: { modelAndDataFlowPermitted: true, restrictionNote: null },
-  output: { highImpact: true, humanCheckBeforeRelease: true },
-  dependencies: [],
-};
-
-interface OpportunitySeed {
-  name: string;
-  outcome: string;
-  valueHypothesis: string;
-  ownerRole: string;
-  kpi: string | null;
-  agentActions: string[];
-  humanGates: string[];
-  factors: Partial<Record<string, FactorScore>>;
-  fallback: FactorScore;
-  confidence: ConfidenceInput;
-  hardStopContext?: HardStopContext;
-  /** §29 requires one candidate with no cost data at all. */
-  missingCost?: boolean;
-}
-
-const OPPORTUNITIES: OpportunitySeed[] = [
-  {
-    name: 'Brand-checked variant generation',
-    outcome:
-      'Produce channel variants from an approved master asset with brand rules applied before human review.',
-    valueHypothesis:
-      'Variant production and resizing is the single most repeated task, and brand review is the largest wait point.',
-    ownerRole: 'Marketing Operations Lead',
-    kpi: 'Brief-to-launch cycle time',
-    agentActions: [
-      'Read the approved master asset and campaign brief',
-      'Generate channel variants against approved brand rules',
-      'Flag any variant that breaches a prohibited-language rule',
-    ],
-    humanGates: ['Brand Manager approves every variant before release'],
-    factors: {
-      outcome_impact: 5,
-      frequency_volume: 5,
-      cycle_time_opportunity: 5,
-      task_repeatability: 5,
-    },
-    fallback: 4,
-    confidence: CONFIDENT,
-  },
-  {
-    name: 'Brief completeness assistant',
-    outcome: 'Check an incoming brief for missing information before it enters production.',
-    valueHypothesis: 'Unclear briefs are the most cited rework reason across the flow.',
-    ownerRole: 'Marketing Operations Lead',
-    kpi: 'Rework events per campaign',
-    agentActions: [
-      'Compare the brief against the required-field checklist',
-      'Draft clarifying questions',
-    ],
-    humanGates: ['Requester confirms the additions'],
-    factors: { outcome_impact: 4, frequency_volume: 5, cycle_time_opportunity: 4, clear_owner: 5 },
-    fallback: 4,
-    confidence: CONFIDENT,
-  },
-  {
-    name: 'Claims pre-check for legal review',
-    outcome: 'Pre-screen copy for regulated claims so legal review starts from a shorter list.',
-    valueHypothesis: 'Legal review is the largest single wait in the flow at 8+ days.',
-    ownerRole: 'Brand Manager',
-    kpi: 'Legal review turnaround',
-    agentActions: ['Identify claim-like statements', 'Match each against the approved-claims list'],
-    humanGates: ['Legal Counsel makes every final compliance decision'],
-    factors: {
-      outcome_impact: 4,
-      cycle_time_opportunity: 5,
-      brand_claims_safety: 3,
-      legal_regulatory_safety: 3,
-    },
-    fallback: 3,
-    confidence: CONFIDENT,
-  },
-  {
-    name: 'Localisation drafting for three markets',
-    outcome: 'Draft market-specific adaptations of approved copy for local review.',
-    valueHypothesis: 'Localisation repeats across three markets every campaign.',
-    ownerRole: 'Content Producer',
-    kpi: 'Localisation hours per campaign',
-    agentActions: ['Adapt approved copy per market', 'Preserve approved claims verbatim'],
-    humanGates: ['Local market reviewer approves before use'],
-    factors: { outcome_impact: 3, frequency_volume: 4, task_repeatability: 4 },
-    fallback: 3,
-    confidence: THIN,
-  },
-  {
-    name: 'Campaign performance summarisation',
-    outcome: 'Draft the post-campaign performance readout from warehouse data.',
-    valueHypothesis:
-      'Reporting is repeated work but sits after launch, so it does not shorten the cycle.',
-    ownerRole: 'Data Analyst',
-    kpi: 'Reporting hours per campaign',
-    agentActions: ['Pull agreed metrics', 'Draft a narrative summary'],
-    humanGates: ['Analyst verifies every figure before circulation'],
-    factors: { outcome_impact: 2, cycle_time_opportunity: 1, strategic_visibility: 2 },
-    fallback: 3,
-    confidence: THIN,
-    missingCost: true,
-  },
-  {
-    name: 'Autonomous audience expansion',
-    outcome: 'Expand paid audiences automatically using CRM segments.',
-    valueHypothesis: 'Potentially valuable, but depends on data the client cannot release.',
-    ownerRole: 'Marketing Operations Lead',
-    kpi: null,
-    agentActions: ['Read CRM segments', 'Adjust audience targeting'],
-    humanGates: [],
-    factors: { outcome_impact: 5, frequency_volume: 4, data_privacy_safety: 0 },
-    fallback: 3,
-    confidence: THIN,
-    hardStopContext: BLOCKED_CONTEXT,
-  },
-];
 
 async function main(): Promise<void> {
   const databaseUrl = process.env.DATABASE_URL;
@@ -540,13 +399,13 @@ async function main(): Promise<void> {
 
       // ── Opportunities, scored by the real §11 engine ──────────────────────
       let recommendedAssigned = false;
-      for (const seed of OPPORTUNITIES) {
+      for (const seed of NORTHSTAR_OPPORTUNITIES) {
         const hardStops = seed.hardStopContext ? detectHardStops(seed.hardStopContext) : [];
         const score = calculateOpportunityScore({
           factors: factorSet(seed.factors, seed.fallback),
           confidence: seed.confidence,
           hardStops,
-          calculatedAt: new Date('2026-08-16T09:00:00.000Z'),
+          calculatedAt: FIXTURE_CALCULATED_AT,
         });
 
         const isRecommended = !recommendedAssigned && score.priorityBand === 'recommend';
@@ -589,23 +448,12 @@ async function main(): Promise<void> {
               assumptions_json, headcount_reduction_confirmed, created_by
             ) VALUES (
               ${workspace.id}, ${assessment.id}, ${opportunity!.id}, 'INR',
-              ${tx.json({
-                base: {
-                  monthlyWorkflowVolume: 180,
-                  minutesSavedPerItem: 12,
-                  loadedHourlyCost: 1450,
-                  monthlyReworkEvents: 9,
-                  costPerReworkEvent: 8500,
-                  expectedReworkReduction: 0.4,
-                  pilotCost: 450000,
-                  annualRunCost: 180000,
-                },
-              })},
+              ${tx.json({ base: BASE_SCENARIO })},
               ${tx.json([
                 {
                   key: 'loadedHourlyCost',
                   label: 'Loaded hourly cost',
-                  value: 1450,
+                  value: BASE_SCENARIO.loadedHourlyCost,
                   unit: 'INR/hour',
                   origin: 'strategist_estimate',
                   source: 'Client-supplied agency rate card, Day 1',
@@ -674,7 +522,4 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error: unknown) => {
-  console.error('\nSeed failed:', error instanceof Error ? error.message : error);
-  process.exit(1);
-});
+main().catch((error: unknown) => reportFailure('Seed failed', error));

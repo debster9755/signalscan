@@ -10,6 +10,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "demo": "tsx scripts/demo.ts",
     "dev": "turbo run dev",
     "dev:services": "docker compose up -d",
     "dev:services:down": "docker compose down",

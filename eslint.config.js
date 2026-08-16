@@ -35,7 +35,7 @@ export default tseslint.config(
   },
   {
     // Scripts and tests may print.
-    files: ['db/**/*.ts', '**/*.test.ts', 'tests/**/*.ts'],
+    files: ['db/**/*.ts', 'scripts/**/*.ts', '**/*.test.ts', 'tests/**/*.ts'],
     rules: { 'no-console': 'off' },
   },
 );

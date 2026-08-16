@@ -6,7 +6,45 @@ SignalScan is a strategist's evidence and decision system. It takes a client's c
 
 It is deliberately **not** an autonomous consultant. Software structures the evidence and the arithmetic; humans approve every recommendation.
 
-The full specification is [`signal-scan-prd.md`](../signal-scan-prd.md). Section references throughout the code (`§11.4`, `§8.4`) point at it.
+---
+
+## See it working in 60 seconds
+
+No Docker, no database, no API key, no account.
+
+```bash
+git clone https://github.com/debster9755/signalscan.git
+cd signalscan
+corepack enable && pnpm install --frozen-lockfile
+pnpm demo
+```
+
+`pnpm demo` runs the real scoring engine, the real hard-stop rules and the real business-case arithmetic over the synthetic Northstar Cloud fixture, and prints the result. Full stepwise instructions, macOS and Windows: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
+
+---
+
+## Top business benefits
+
+- **Turns a twelve-idea AI wish-list into one funded decision** — in five business days, not a six-week consulting engagement.
+- **Kills non-viable ideas before they cost money.** Hard stops (no owner, no measurable outcome, prohibited data) block a candidate outright, whatever it scores.
+- **Produces a business case a CFO can sign.** Missing inputs stay missing; nothing is estimated to make a slide look finished.
+- **Survives brand, legal and procurement review.** Every claim carries a citation to the client's own evidence, and a named human approves every recommendation.
+- **Same evidence, same answer, every time.** Scores are integer-exact server arithmetic, never model output — so a recommendation cannot drift between two runs or two machines.
+- **Client evidence stays isolated by construction.** Tenant separation is enforced in the database by row-level security, not by a `WHERE` clause someone might forget.
+
+### Business metrics it is built to move
+
+| Metric                                | How SignalScan affects it                                                         |
+| ------------------------------------- | --------------------------------------------------------------------------------- |
+| **Brief-to-launch cycle time**        | Maps every stage's wait vs. work time and targets the largest wait first          |
+| **Rework events per campaign**        | Finds the stages sent back most often and scores fixes against them               |
+| **Review turnaround** (brand / legal) | Pre-screens the queue so human reviewers start from a shorter list                |
+| **Hours of capacity released**        | `volume × minutes saved × 12 ÷ 60`, from client-supplied volumes only             |
+| **Pilot payback period**              | Months to recover pilot cost — suppressed entirely when net value is not positive |
+| **Year-one net value**                | Gross value minus pilot cost minus annual run cost, per scenario                  |
+| **Time-to-decision**                  | Five business days from intake to an approved recommendation and pilot charter    |
+
+> The fixture in `pnpm demo` shows the shape of this: a 26-day campaign cycle that is **93% waiting**, and a top-ranked workflow worth 432 hours a year with a 6.6-month payback.
 
 ---
 
@@ -33,6 +71,38 @@ Four analysis stages carry the work:
 
 ---
 
+## What it can and cannot do today
+
+**Can — runs now, on your machine:**
+
+- Score 5–8 opportunities on 16 weighted factors and rank them into four priority bands
+- Detect all eight hard stops and block a candidate regardless of its score
+- Compute confidence from evidence coverage, source agreement, recency and reviewer validation
+- Build a three-scenario business case, and report exactly which inputs are still missing
+- Map a ten-stage campaign flow and rank its friction by wait time, workload and rework
+- Serve 20 versioned intake questions with conditional branching and validation
+- Enforce the assessment lifecycle and workspace RBAC across four roles
+- Create the schema, apply row-level security, and load a full synthetic client
+- Prove tenant isolation by connecting as the real application role and failing to read across workspaces
+
+**Cannot — not built yet:**
+
+- **No web UI.** `pnpm dev` starts nothing today; `apps/web` does not exist. Everything runs from the CLI.
+- No document parsing — PDF/DOCX/PPTX ingestion and citation extraction are next
+- No live LLM calls — the adapters are specified but not yet implemented
+- No report exports (HTML, PDF, CSV, JSON, Markdown)
+- No authentication or user sign-in
+- No hosted deployment, background workers, or E2E and AI-eval suites (`pnpm test:e2e` and `pnpm test:evals` are wired but have no suites yet)
+
+**Will never do, by design:**
+
+- Let a model calculate a score, a priority band or a business-case figure
+- Estimate a missing cost to make a business case look complete
+- Present time savings as headcount reduction unless the client explicitly confirms that framing
+- Ship a recommendation no human has approved
+
+---
+
 ## Status
 
 Foundation and deterministic core, running locally against synthetic data.
@@ -53,42 +123,60 @@ Foundation and deterministic core, running locally against synthetic data.
 
 ---
 
-## Getting started
+## Run it on a MacBook
 
-Requires **Node 22+**, **pnpm 11+** and **Docker**.
+### Prerequisites
+
+| Tool               | Version                | Install                                                    | Needed for                        |
+| ------------------ | ---------------------- | ---------------------------------------------------------- | --------------------------------- |
+| **macOS**          | 13 Ventura or later    | —                                                          | Apple Silicon and Intel both work |
+| **Node.js**        | **22.13+** (or 24 LTS) | `brew install node@22` — or `nvm install 22 && nvm use 22` | Everything                        |
+| **pnpm**           | 11.22+                 | `corepack enable` (ships with Node)                        | Everything                        |
+| **Git**            | any                    | `xcode-select --install`                                   | Cloning                           |
+| **Docker Desktop** | 4.x                    | `brew install --cask docker`                               | **Only** the database steps       |
+
+> `package.json` says Node `>=22.0.0`, but pnpm 11.22 itself requires **Node 22.13 or newer**. On Node 22.11 you will see `This version of pnpm requires at least Node.js v22.13`. Use Node 22.13+ or Node 24.
+
+### Steps
 
 ```bash
-# 1. Install from the lockfile
+# 1. Clone
+git clone https://github.com/debster9755/signalscan.git
+cd signalscan
+
+# 2. Check your Node — must be 22.13 or newer
+node -v
+
+# 3. Enable pnpm (bundled with Node, no install needed)
+corepack enable
+
+# 4. Install exactly what the lockfile pins
 pnpm install --frozen-lockfile
 
-# 2. Copy the environment template. Every value in it is safe; nothing here
-#    needs a real credential to run locally.
+# 5. See the decision engine run — no Docker, no keys, ~1 second
+pnpm demo
+
+# 6. Prove it with the test suite — 304 unit tests
+pnpm test
+```
+
+**Stop at step 6** unless you need the database. Steps 7–10 add Postgres, Mailpit and MinIO:
+
+```bash
+# 7. Environment template — every value in it is safe, no real credential needed
 cp .env.example .env.local
 
-# 3. Start Postgres (with pgvector), Mailpit and MinIO
+# 8. Start Docker Desktop first, then bring up the services
 pnpm dev:services
 
-# 4. Create the schema, apply row-level security, and load synthetic data
+# 9. Create the schema and apply row-level security
 pnpm db:migrate
+
+# 10. Load the synthetic Northstar Cloud client
 pnpm db:seed
 ```
 
-<details>
-<summary><strong>Windows (PowerShell) equivalents</strong> — §34 asks for these explicitly</summary>
-
-```powershell
-pnpm install --frozen-lockfile
-Copy-Item .env.example .env.local
-pnpm dev:services
-$env:DATABASE_URL = "postgresql://signalscan:signalscan@localhost:5432/signalscan"
-pnpm db:migrate
-pnpm db:seed
-```
-
-`pnpm dev:services` needs Docker Desktop running. If `docker compose` reports it cannot find the pipe, start Docker Desktop and wait for the engine before retrying.
-</details>
-
-The seed prints the scored portfolio, which is the fastest way to confirm everything is wired up:
+The seed prints the scored portfolio — the fastest confirmation everything is wired up:
 
 ```
 Scored portfolio:
@@ -102,13 +190,53 @@ Scored portfolio:
 
 Note the last row: it scores higher than two backlog items and is still blocked. A hard stop overrides the ranking entirely (§11.5) — that is the behaviour, not a bug.
 
+### Is there a localhost option?
+
+| URL                                      | What it is                                             | Needs               |
+| ---------------------------------------- | ------------------------------------------------------ | ------------------- |
+| _(none)_                                 | The SignalScan web app — **not built yet**             | —                   |
+| [localhost:8025](http://localhost:8025)  | Mailpit — every outbound email, captured               | `pnpm dev:services` |
+| [localhost:9001](http://localhost:9001)  | MinIO console (`signalscan` / `signalscan-dev-secret`) | `pnpm dev:services` |
+| `postgresql://localhost:5432/signalscan` | Postgres + pgvector (`signalscan` / `signalscan`)      | `pnpm dev:services` |
+
+There is **no browser UI yet** — `apps/web` is the next milestone. Until then `pnpm demo` is the way to see the product's logic working.
+
+Windows steps, day-to-day workflow and troubleshooting: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
+
+---
+
+## Which functionalities need an API key
+
+**None of the following need any key, account or network access:**
+
+`pnpm demo` · `pnpm test` · `pnpm test:coverage` · `pnpm typecheck` · `pnpm lint` · `pnpm build` · `pnpm dev:services` · `pnpm db:migrate` · `pnpm db:seed` · `pnpm test:integration`
+
+That is every command in the repo today. The defaults in `.env.example` point at local containers and fixture-replay adapters.
+
+| Capability                           | Default (free, local)        | Live mode needs                                                            | Status           |
+| ------------------------------------ | ---------------------------- | -------------------------------------------------------------------------- | ---------------- |
+| LLM extraction and generation        | `LLM_PROVIDER=mock`          | `LLM_PROVIDER=anthropic` + `LLM_API_KEY`                                   | 🚧 Not built     |
+| Semantic retrieval / embeddings      | `EMBEDDING_PROVIDER=mock`    | `EMBEDDING_API_KEY` + `EMBEDDING_MODEL`                                    | 🚧 Not built     |
+| Auth and sign-in                     | `AUTH_PROVIDER=local`        | `AUTH_PROVIDER=supabase` + the three `SUPABASE_*` keys                     | 📋 Planned       |
+| File storage                         | `STORAGE_PROVIDER=minio`     | Supabase Storage credentials                                               | 🚧 Not built     |
+| Email delivery                       | `EMAIL_PROVIDER=mailpit`     | `EMAIL_API_KEY` for a real provider                                        | 📋 Planned       |
+| Malware scanning on upload           | `MALWARE_SCAN_PROVIDER=stub` | `MALWARE_SCAN_API_KEY` — **production fails closed without it**            | 📋 Planned       |
+| Background jobs                      | Inngest dev server, offline  | `JOB_SIGNING_KEY` + `JOB_EVENT_KEY`                                        | 📋 Planned       |
+| Error tracking / tracing / analytics | Off                          | `ERROR_TRACKING_DSN`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `ANALYTICS_WRITE_KEY` | Optional, always |
+
+Two rules worth knowing:
+
+- **Model names are never defaulted in code** (§21.6). If a model slot is empty while the provider is not `mock`, startup fails rather than quietly picking one.
+- Switching from `mock` to a live provider is **configuration only** — no code change. Business logic never imports a vendor SDK; everything external sits behind an adapter (§15.3).
+
 ---
 
 ## Commands
 
 | Command                                        | Does                                                      |
 | ---------------------------------------------- | --------------------------------------------------------- |
-| `pnpm dev`                                     | Run the application                                       |
+| `pnpm demo`                                    | **Run the deterministic core in memory — no services**    |
+| `pnpm dev`                                     | Run the application — _no-op today; `apps/web` not built_ |
 | `pnpm dev:services` / `pnpm dev:services:down` | Start / stop local Postgres, Mailpit and MinIO            |
 | `pnpm db:migrate`                              | Apply pending migrations and RLS policies                 |
 | `pnpm db:migrate --dry-run`                    | List what would run                                       |
@@ -119,27 +247,30 @@ Note the last row: it scores higher than two backlog items and is still blocked.
 | `pnpm test`                                    | Unit tests                                                |
 | `pnpm test:coverage`                           | Unit tests with coverage gates                            |
 | `pnpm test:integration`                        | Integration tests — **needs services running and seeded** |
-| `pnpm test:e2e`                                | Browser end-to-end tests                                  |
-| `pnpm test:evals`                              | AI evaluation gates                                       |
+| `pnpm test:e2e`                                | Browser end-to-end tests — _no suite yet_                 |
+| `pnpm test:evals`                              | AI evaluation gates — _no suite yet_                      |
 | `pnpm build`                                   | Build everything                                          |
 
 ---
 
 ## Layout
 
+Directories marked `—` are specified but not yet created.
+
 ```
-apps/web/          Next.js application and API routes
 packages/
-  ai/              LLM and embedding adapters, versioned prompts, eval sets
-  documents/       Parsers, chunking, citation extraction
-  domain/          Scoring, business case, intake, workflow, brand, assessment
-  reports/         HTML, PDF, CSV, JSON, Markdown renderers
-  security/        Authorization, audit, retention
-  ui/              Design system
-workers/           Durable analysis, export and deletion jobs
-db/                Migrations, RLS policies, synthetic seed
-tests/             Fixtures, integration, E2E, evals
-docs/              ADRs, threat model, data flow, operations
+  domain/          ✅ Scoring, business case, intake, workflow, assessment
+  security/        ✅ Authorization
+  ai/              —  LLM and embedding adapters, versioned prompts, eval sets
+  documents/       —  Parsers, chunking, citation extraction
+  reports/         —  HTML, PDF, CSV, JSON, Markdown renderers
+  ui/              —  Design system
+apps/web/          —  Next.js application and API routes
+workers/           —  Durable analysis, export and deletion jobs
+db/                ✅ Migrations, RLS policies, synthetic seed
+scripts/demo.ts    ✅ Zero-dependency demonstration of the core
+tests/             ✅ Fixtures and integration tests (E2E and evals to come)
+docs/              ✅ Quickstart and ADRs
 ```
 
 Business logic never imports a vendor SDK directly. Everything external sits behind an adapter in `packages/*/adapters` (§15.3), which is what makes the local, zero-credential setup possible.
@@ -164,10 +295,7 @@ Business logic never imports a vendor SDK directly. Everything external sits beh
 
 ## Configuration
 
-Everything is in [`.env.example`](.env.example), grouped by §21 section. Two things worth calling out:
-
-- **`LLM_PROVIDER=mock`** replays fixture responses deterministically. The whole pipeline runs with no API key and no network. Set it to `anthropic` and add `LLM_API_KEY` for live extraction — no code change.
-- **Model names are never defaulted in code** (§21.6). If a model slot is empty while the provider is not `mock`, startup fails rather than quietly picking one.
+Everything is in [`.env.example`](.env.example), grouped by §21 section. See [Which functionalities need an API key](#which-functionalities-need-an-api-key) above — the short version is that the committed defaults need none.
 
 ---
 
@@ -176,6 +304,12 @@ Everything is in [`.env.example`](.env.example), grouped by §21 section. Two th
 Read [`SECURITY.md`](SECURITY.md) before working on evidence handling, retrieval or exports. In short: private storage only, signed URLs, SHA-256 checksums, malware scanning that fails closed in production, no client content in logs or analytics, and uploaded documents treated as untrusted data rather than instructions (§22.2).
 
 **Never put real client data in this repository** — not in fixtures, not in tests, not in screenshots (§29, §33).
+
+---
+
+## A note on the section references
+
+`§11.4`, `§8.4` and similar throughout the code and docs point at `signal-scan-prd.md`, the full internal specification. That document is not published in this repository.
 
 ---
 

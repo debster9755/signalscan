@@ -13,6 +13,9 @@
  *   pnpm db:migrate --reset    drop and recreate the public schema first
  *   pnpm db:migrate --dry-run  list what would run
  */
+// Must come first: every import below may read process.env.
+import './load-env.js';
+import { reportFailure } from './fail.js';
 import { createHash } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -128,7 +131,4 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error: unknown) => {
-  console.error('\nMigration failed:', error instanceof Error ? error.message : error);
-  process.exit(1);
-});
+main().catch((error: unknown) => reportFailure('Migration failed', error));
