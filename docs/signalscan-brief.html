@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SignalScan</title>
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     SignalScan — executive brief
+     Identity: instrument panel. Flat high-chroma ink on cool paper,
+     with the four priority bands as the semantic spine. The bands are
+     the product's own colour system, so the page inherits its meaning
+     rather than inventing decoration.
+     ───────────────────────────────────────────────────────────── */
+
+  :root {
+    --paper:      #eef2f6;
+    --surface:    #ffffff;
+    --surface-2:  #f7f9fb;
+    --line:       #d3dce5;
+    --line-soft:  #e4eaf0;
+    --ink:        #0d141c;
+    --ink-mid:    #47535f;
+    --ink-soft:   #6c7a88;
+
+    --signal:     #0f5fd6;
+    --signal-ink: #0b47a1;
+    --signal-wash:#e2ecfc;
+    --pulse:      #e0176f;
+    --pulse-wash: #fde4ee;
+
+    --jade:       #00845c;
+    --jade-wash:  #ddf3ea;
+    --amber:      #b96f00;
+    --amber-wash: #fdeed6;
+    --slate:      #5c6a7e;
+    --slate-wash: #e8ecf1;
+    --crimson:    #c22133;
+    --crimson-wash:#fce3e5;
+
+    --shadow: 0 1px 2px rgba(13, 20, 28, .06), 0 8px 24px -12px rgba(13, 20, 28, .18);
+
+    --display: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0a0f16;
+      --surface:    #131b25;
+      --surface-2:  #18212d;
+      --line:       #2a3746;
+      --line-soft:  #223040;
+      --ink:        #e9eff5;
+      --ink-mid:    #a9b7c5;
+      --ink-soft:   #8494a4;
+
+      --signal:     #5d9dff;
+      --signal-ink: #a3c7ff;
+      --signal-wash:#132844;
+      --pulse:      #ff5f96;
+      --pulse-wash: #3d132a;
+
+      --jade:       #2fc78e;
+      --jade-wash:  #0d3529;
+      --amber:      #ffb43d;
+      --amber-wash: #3a2a0c;
+      --slate:      #93a3b8;
+      --slate-wash: #222c39;
+      --crimson:    #ff6d75;
+      --crimson-wash:#3d1519;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.8);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0a0f16;
+    --surface:    #131b25;
+    --surface-2:  #18212d;
+    --line:       #2a3746;
+    --line-soft:  #223040;
+    --ink:        #e9eff5;
+    --ink-mid:    #a9b7c5;
+    --ink-soft:   #8494a4;
+
+    --signal:     #5d9dff;
+    --signal-ink: #a3c7ff;
+    --signal-wash:#132844;
+    --pulse:      #ff5f96;
+    --pulse-wash: #3d132a;
+
+    --jade:       #2fc78e;
+    --jade-wash:  #0d3529;
+    --amber:      #ffb43d;
+    --amber-wash: #3a2a0c;
+    --slate:      #93a3b8;
+    --slate-wash: #222c39;
+    --crimson:    #ff6d75;
+    --crimson-wash:#3d1519;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.8);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--display);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 74rem; margin: 0 auto; padding: 0 1.5rem 5rem; }
+
+  /* ── Micro-label: the instrument vernacular ───────────────── */
+  .tag {
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+
+  h2 {
+    font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    margin: .3rem 0 .6rem;
+  }
+
+  h3 { font-size: 1rem; font-weight: 700; letter-spacing: -.01em; }
+
+  p { margin: 0 0 1rem; }
+  .lede { color: var(--ink-mid); max-width: 60ch; font-size: 1.02rem; }
+
+  section { padding: 3.4rem 0 0; }
+  .sec-head { margin-bottom: 1.6rem; }
+
+  /* ── Masthead ─────────────────────────────────────────────── */
+  .masthead {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding: 2.6rem 0 0;
+  }
+  .brandline { display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
+  .brand {
+    font-size: clamp(2.4rem, 6.4vw, 4rem);
+    font-weight: 900;
+    letter-spacing: -.055em;
+    line-height: .95;
+  }
+  .brand em { font-style: normal; color: var(--signal); }
+  .thesis {
+    font-size: clamp(1.05rem, 2.3vw, 1.35rem);
+    font-weight: 600;
+    letter-spacing: -.02em;
+    color: var(--ink);
+    max-width: 42ch;
+    margin: 1rem 0 1.4rem;
+  }
+
+  /* The band legend: the product's own four-state vocabulary,
+     stated once at the top so every later use reads instantly. */
+  .bands { display: flex; flex-wrap: wrap; gap: .5rem; padding-bottom: 2.4rem; }
+  .band {
+    font-family: var(--mono);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: .34rem .7rem;
+    border-radius: 2rem;
+    border: 1px solid transparent;
+  }
+  .b-rec  { color: var(--jade);    background: var(--jade-wash);    border-color: var(--jade); }
+  .b-con  { color: var(--amber);   background: var(--amber-wash);   border-color: var(--amber); }
+  .b-bak  { color: var(--slate);   background: var(--slate-wash);   border-color: var(--slate); }
+  .b-blk  { color: var(--crimson); background: var(--crimson-wash); border-color: var(--crimson); }
+
+  /* ── Cards ────────────────────────────────────────────────── */
+  .grid { display: grid; gap: 1rem; }
+  .g2 { grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
+  .g3 { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+  .g4 { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: .5rem;
+    padding: 1.15rem 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .card h3 { margin-bottom: .35rem; }
+  .card p { font-size: .92rem; color: var(--ink-mid); margin: 0; }
+
+  /* ── Stat tiles ───────────────────────────────────────────── */
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: .5rem; padding: 1.1rem 1.2rem; }
+  .stat .v {
+    font-size: clamp(1.7rem, 4vw, 2.3rem);
+    font-weight: 900;
+    letter-spacing: -.045em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.05;
+  }
+  .stat .k { font-size: .85rem; color: var(--ink-mid); margin-top: .15rem; }
+  .stat .n { font-size: .78rem; color: var(--ink-soft); margin-top: .5rem; }
+  .v-signal { color: var(--signal); }
+  .v-pulse  { color: var(--pulse); }
+  .v-jade   { color: var(--jade); }
+  .v-crimson{ color: var(--crimson); }
+
+  /* ── The wait/work bar: the core finding, drawn ───────────── */
+  .findbar { background: var(--surface); border: 1px solid var(--line); border-radius: .5rem; padding: 1.3rem 1.4rem; }
+  .track {
+    display: flex; height: 2.6rem; border-radius: .3rem; overflow: hidden;
+    border: 1px solid var(--line); margin: .9rem 0 .6rem;
+  }
+  .seg { display: grid; place-items: center; font-family: var(--mono); font-size: .72rem; font-weight: 700; letter-spacing: .06em; }
+  .seg-wait { flex: 93; background: var(--crimson-wash); color: var(--crimson); }
+  .seg-work { flex: 7;  background: var(--jade-wash);   color: var(--jade); }
+  .legend { display: flex; justify-content: space-between; font-size: .8rem; color: var(--ink-soft); }
+
+  /* ── Loop: a real sequence, so it earns its numbering ─────── */
+  .loop { display: grid; gap: .55rem; grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr)); counter-reset: step; }
+  .step {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--signal);
+    border-radius: .4rem;
+    padding: .95rem 1rem 1rem;
+  }
+  .step::before {
+    counter-increment: step;
+    content: counter(step, decimal-leading-zero);
+    font-family: var(--mono);
+    font-size: .68rem;
+    font-weight: 700;
+    color: var(--signal);
+    letter-spacing: .1em;
+  }
+  .step p { font-size: .88rem; font-weight: 650; color: var(--ink); margin: .3rem 0 0; letter-spacing: -.01em; }
+  .step.terminal { border-top-color: var(--pulse); }
+  .step.terminal::before { color: var(--pulse); }
+
+  /* ── Stage columns ────────────────────────────────────────── */
+  .stage { background: var(--surface); border: 1px solid var(--line); border-radius: .5rem; overflow: hidden; }
+  .stage-bar { height: .3rem; background: var(--signal); }
+  .stage:nth-child(2) .stage-bar { background: var(--pulse); }
+  .stage:nth-child(3) .stage-bar { background: var(--amber); }
+  .stage:nth-child(4) .stage-bar { background: var(--jade); }
+  .stage-body { padding: 1.05rem 1.15rem 1.2rem; }
+  .stage h3 { margin-bottom: .35rem; }
+  .stage p { font-size: .88rem; color: var(--ink-mid); margin: 0; }
+
+  /* ── Agentic IO ───────────────────────────────────────────── */
+  .io { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); align-items: stretch; }
+  .io-col { background: var(--surface); border: 1px solid var(--line); border-radius: .5rem; padding: 1.15rem 1.25rem; }
+  .io-col.engine { background: var(--signal-wash); border-color: var(--signal); }
+  .io-col ul { margin: .6rem 0 0; padding-left: 1.05rem; }
+  .io-col li { font-size: .88rem; color: var(--ink-mid); margin-bottom: .3rem; }
+  .io-col.engine li { color: var(--ink); }
+
+  .gate {
+    margin-top: .8rem; padding: .6rem .75rem;
+    background: var(--surface); border: 1px dashed var(--signal);
+    border-radius: .35rem; font-size: .82rem; color: var(--signal-ink); font-weight: 650;
+  }
+
+  /* ── Dependency board ─────────────────────────────────────── */
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: .5rem; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: .89rem; }
+  th {
+    text-align: left; font-family: var(--mono); font-size: .67rem; letter-spacing: .11em;
+    text-transform: uppercase; color: var(--ink-soft); font-weight: 700;
+    padding: .8rem 1rem; border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  td { padding: .7rem 1rem; border-bottom: 1px solid var(--line-soft); color: var(--ink-mid); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td strong { color: var(--ink); font-weight: 650; }
+  .num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+  .pill {
+    display: inline-block; font-family: var(--mono); font-size: .66rem; font-weight: 700;
+    letter-spacing: .07em; text-transform: uppercase; padding: .2rem .55rem; border-radius: .3rem; white-space: nowrap;
+  }
+  .p-built { color: var(--jade);    background: var(--jade-wash); }
+  .p-must  { color: var(--crimson); background: var(--crimson-wash); }
+  .p-should{ color: var(--amber);   background: var(--amber-wash); }
+  .p-opt   { color: var(--slate);   background: var(--slate-wash); }
+
+  /* ── Profiles ─────────────────────────────────────────────── */
+  .profile { background: var(--surface); border: 1px solid var(--line); border-radius: .5rem; padding: 1.3rem 1.4rem; }
+  .profile .tag { color: var(--pulse); }
+  .profile h3 { font-size: 1.15rem; letter-spacing: -.02em; margin: .25rem 0 .15rem; }
+  .profile .sub { font-size: .85rem; color: var(--ink-soft); margin-bottom: .9rem; }
+  .rows { display: grid; gap: .1rem; }
+  .row { display: flex; justify-content: space-between; gap: 1rem; padding: .42rem 0; border-bottom: 1px dotted var(--line); font-size: .88rem; }
+  .row:last-child { border-bottom: none; }
+  .row span:first-child { color: var(--ink-mid); }
+  .row span:last-child { font-family: var(--mono); font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* ── Callouts ─────────────────────────────────────────────── */
+  .callout {
+    border-left: 3px solid var(--pulse);
+    background: var(--pulse-wash);
+    padding: .95rem 1.15rem;
+    border-radius: 0 .4rem .4rem 0;
+    font-size: .92rem;
+    color: var(--ink);
+  }
+  .callout strong { font-weight: 750; }
+  .note {
+    font-size: .84rem; color: var(--ink-soft);
+    border-left: 2px solid var(--line); padding-left: .85rem; margin-top: 1rem;
+  }
+
+  footer {
+    margin-top: 3.5rem; padding-top: 1.6rem; border-top: 1px solid var(--line);
+    font-size: .85rem; color: var(--ink-soft);
+  }
+  a { color: var(--signal); }
+  a:focus-visible, .step:focus-visible { outline: 2px solid var(--pulse); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .step, .card, .stat { transition: transform .18s ease; }
+    .card:hover, .stat:hover { transform: translateY(-2px); }
+  }
+</style>
+</head>
+<body>
+<div class="masthead">
+  <div class="wrap">
+    <div class="brandline">
+      <div class="brand">Signal<em>Scan</em></div>
+      <span class="tag">Executive brief</span>
+    </div>
+    <p class="thesis">Find the first profitable agentic marketing workflow in five business days — scored, cited, and approved by a human.</p>
+    <div class="bands">
+      <span class="band b-rec">Recommend</span>
+      <span class="band b-con">Conditional</span>
+      <span class="band b-bak">Backlog</span>
+      <span class="band b-blk">Blocked — hard stop</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ── What it is ─────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">01 — What it is</span>
+      <h2>A decision instrument, not an autonomous consultant</h2>
+      <p class="lede">SignalScan takes a client's campaign context and evidence, maps how campaigns actually get made, works out what the brand really sounds like, compares it against two competitors, and produces <strong>one</strong> scored, cited recommendation with a business case and a 30-day pilot charter.</p>
+    </div>
+    <div class="grid g3">
+      <div class="card">
+        <h3>Software structures. Humans decide.</h3>
+        <p>The system organises evidence and does the arithmetic. A named person approves every recommendation before it reaches a client.</p>
+      </div>
+      <div class="card">
+        <h3>Five business days</h3>
+        <p>Intake to approved recommendation and pilot charter — not a six-week consulting engagement.</p>
+      </div>
+      <div class="card">
+        <h3>One answer, not a menu</h3>
+        <p>Five to eight candidates are scored; exactly one is recommended to fund first.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Problems ───────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">02 — Problems it solves</span>
+      <h2>What it is actually for</h2>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h3>“We have twelve AI ideas and no way to choose”</h3>
+        <p>Workshop enthusiasm produces a wish-list ranked by whoever spoke last. Scoring is weighted, explicit and reproducible — the same evidence yields the same rank on any machine.</p>
+      </div>
+      <div class="card">
+        <h3>Pilots that die at month six</h3>
+        <p>No accountable owner, no measurable outcome, or data the client was never allowed to release. Hard stops surface all of it on day four, before the budget is committed.</p>
+      </div>
+      <div class="card">
+        <h3>Business cases nobody can defend</h3>
+        <p>A missing cost becomes a plausible-looking placeholder, and the number collapses under finance review. Here a missing input stays missing and is reported as such.</p>
+      </div>
+      <div class="card">
+        <h3>Automating the wrong half</h3>
+        <p>Teams automate the work when the cycle is mostly queue. Flow mapping separates hands-on effort from waiting before anything gets scored.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── AI role ────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">03 — How it leverages AI</span>
+      <h2>Narrowly, and never for the number</h2>
+    </div>
+    <div class="grid g3">
+      <div class="card">
+        <h3>Reads evidence</h3>
+        <p>Extracts brand rules, workflow detail and competitor positioning from client documents — every claim tied to a page or slide it can point at.</p>
+      </div>
+      <div class="card">
+        <h3>Infers when there is no guideline</h3>
+        <p>With no brand book, rules are inferred from roughly 25 labelled campaigns and held as <em>pending</em> until a human approves them.</p>
+      </div>
+      <div class="card">
+        <h3>Drafts, never decides</h3>
+        <p>Proposes candidate workflows and drafts report narrative. Ranking, banding and arithmetic happen in code.</p>
+      </div>
+    </div>
+    <div style="margin-top:1rem" class="callout">
+      <strong>No model ever produces a score, a priority band, or a business-case figure.</strong> The scoring package has no model dependency at all — which is why a recommendation cannot drift between two runs, and why every number can be traced to its inputs.
+    </div>
+  </section>
+
+  <!-- ── Benefits ───────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">04 — Top business benefits</span>
+      <h2>Why an executive sponsors this</h2>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h3>One funded decision, in a week</h3><p>A twelve-idea wish-list becomes a single recommendation with an owner, a KPI and a 30-day charter.</p></div>
+      <div class="card"><h3>Non-viable ideas die cheaply</h3><p>Hard stops block a candidate outright, whatever it scored — before pilot spend, not after.</p></div>
+      <div class="card"><h3>A business case finance will sign</h3><p>Nothing is estimated to make a slide look finished. Gaps are named, not filled.</p></div>
+      <div class="card"><h3>Survives brand, legal and procurement</h3><p>Every claim carries a citation to the client's own evidence; a named human approves the recommendation.</p></div>
+      <div class="card"><h3>Reproducible under challenge</h3><p>Integer-exact server arithmetic. Same evidence, same answer — on any machine, in any month.</p></div>
+      <div class="card"><h3>Client evidence isolated by construction</h3><p>Tenant separation is enforced in the database by row-level security, not by a query filter someone might forget.</p></div>
+    </div>
+  </section>
+
+  <!-- ── Metrics ────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">05 — Business metrics it is built to move</span>
+      <h2>The levers, and a worked example</h2>
+    </div>
+
+    <div class="findbar">
+      <span class="tag">The finding that reframes the problem</span>
+      <div class="track" role="img" aria-label="Of a 26.2 day campaign cycle, 93 percent is waiting and 7 percent is hands-on work.">
+        <div class="seg seg-wait">93% WAITING</div>
+        <div class="seg seg-work">7%</div>
+      </div>
+      <div class="legend"><span>26.2 days elapsed, end to end</span><span>1.8 days of actual work</span></div>
+    </div>
+
+    <div class="grid g4" style="margin-top:1rem">
+      <div class="stat"><div class="v v-signal">432</div><div class="k">hours released / year</div><div class="n">volume × minutes saved, client figures only</div></div>
+      <div class="stat"><div class="v v-jade">6.6</div><div class="k">months to payback</div><div class="n">suppressed entirely if net value ≤ 0</div></div>
+      <div class="stat"><div class="v v-pulse">8+</div><div class="k">days in legal review</div><div class="n">the single largest wait in the flow</div></div>
+      <div class="stat"><div class="v v-crimson">5</div><div class="k">business days to decision</div><div class="n">intake → approved recommendation</div></div>
+    </div>
+
+    <div class="scroll" style="margin-top:1rem">
+      <table>
+        <thead><tr><th>Metric</th><th>How SignalScan moves it</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Brief-to-launch cycle time</strong></td><td>Maps wait time against work time per stage and targets the largest queue first</td></tr>
+          <tr><td><strong>Rework events per campaign</strong></td><td>Identifies stages sent back most often, then scores fixes against them</td></tr>
+          <tr><td><strong>Review turnaround</strong> (brand / legal)</td><td>Pre-screens the queue so human reviewers start from a shorter list</td></tr>
+          <tr><td><strong>Capacity released</strong></td><td>Hours per year returned to the team, from client-supplied volumes only</td></tr>
+          <tr><td><strong>Pilot payback period</strong></td><td>Months to recover pilot cost — never shown when value is not positive</td></tr>
+          <tr><td><strong>Year-one net value</strong></td><td>Gross value less pilot cost less annual run cost, per scenario</td></tr>
+          <tr><td><strong>Time-to-decision</strong></td><td>Five business days from intake to an approved recommendation</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Figures above are from the synthetic “Northstar Cloud” fixture that ships with the repository — a fully invented client used so the system can be demonstrated without touching real client data. They illustrate the shape of an output, not a promise.</p>
+  </section>
+
+  <!-- ── The loop ───────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">06 — The loop</span>
+      <h2>Evidence in, one approved recommendation out</h2>
+      <p class="lede">A strict sequence. Each step consumes the validated output of the one before it, and the engine does not run until human validation is complete.</p>
+    </div>
+    <div class="loop">
+      <div class="step"><p>Client context &amp; evidence</p></div>
+      <div class="step"><p>Validated campaign flow</p></div>
+      <div class="step"><p>Approved or inferred brand rules</p></div>
+      <div class="step"><p>Two-competitor differentiation</p></div>
+      <div class="step"><p>5–8 scored opportunities</p></div>
+      <div class="step terminal"><p>One human-approved recommendation</p></div>
+      <div class="step terminal"><p>Business case &amp; 30-day pilot charter</p></div>
+    </div>
+  </section>
+
+  <!-- ── Four stages ────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">07 — Four analysis stages carry the work</span>
+      <h2>Where the effort actually goes</h2>
+    </div>
+    <div class="grid g4">
+      <div class="stage"><div class="stage-bar"></div><div class="stage-body">
+        <h3>Evidence ingestion</h3>
+        <p>Parses uploads, chunks them, and attaches a citable location — page, slide, sheet — to every excerpt.</p>
+      </div></div>
+      <div class="stage"><div class="stage-bar"></div><div class="stage-body">
+        <h3>Campaign-flow mapping</h3>
+        <p>Normalises three capture paths into one stage schema and finds where the real friction sits.</p>
+      </div></div>
+      <div class="stage"><div class="stage-bar"></div><div class="stage-body">
+        <h3>Brand &amp; competitor analyst</h3>
+        <p>Extracts guideline rules, or infers them from ~25 campaigns, then compares against exactly two competitors.</p>
+      </div></div>
+      <div class="stage"><div class="stage-bar"></div><div class="stage-body">
+        <h3>Opportunity scoring</h3>
+        <p>Scores candidates deterministically on the server across 16 weighted factors — never in a prompt.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ── Agentic IO ─────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">08 — Agentic workflow</span>
+      <h2>Inputs it takes, outputs it gives</h2>
+    </div>
+    <div class="io">
+      <div class="io-col">
+        <span class="tag">Inputs</span>
+        <ul>
+          <li><strong>20 intake answers</strong> — business, flow, data, brand, risk</li>
+          <li><strong>Evidence files</strong> — PDF, DOCX, PPTX, XLSX, CSV, images; ≤50 MB each, ≤200 per scan</li>
+          <li><strong>~25 campaigns</strong>, labelled on-brand / off-brand</li>
+          <li><strong>Brand guidelines</strong>, where they exist</li>
+          <li><strong>Two competitors</strong>, public evidence only</li>
+          <li><strong>Workflow timings</strong> — work, elapsed, wait, rework per stage</li>
+        </ul>
+      </div>
+      <div class="io-col engine">
+        <span class="tag" style="color:var(--signal-ink)">Agentic middle</span>
+        <ul>
+          <li>Cited extraction — two passes, so a location is verified rather than asserted</li>
+          <li>Schema-validated normalisation, one repair attempt, then <em>needs review</em></li>
+          <li>Retrieval filtered by tenant <em>before</em> similarity</li>
+          <li>Deterministic scoring, confidence and hard stops in code</li>
+        </ul>
+        <div class="gate">Human gates: operator validates the flow · reviewer approves brand rules · sponsor confirms competitors · strategist approves the recommendation</div>
+      </div>
+      <div class="io-col">
+        <span class="tag">Outputs</span>
+        <ul>
+          <li><strong>Validated flow map</strong> with friction ranked by wait, workload and rework</li>
+          <li><strong>Approved brand rule set</strong>, each rule cited</li>
+          <li><strong>Competitor differentiation</strong> across eight axes</li>
+          <li><strong>5–8 scored opportunities</strong> in four priority bands</li>
+          <li><strong>Hard-stop register</strong> — what is blocked and what would clear it</li>
+          <li><strong>Business case</strong> — hours, gross value, year-one net, payback</li>
+          <li><strong>30-day pilot charter</strong> for the single recommendation</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Dependencies ───────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">09 — Dependencies to productionalise</span>
+      <h2>What exists, and what must be built</h2>
+      <p class="lede">The decisioning engine is finished. The pipeline that feeds it is specified but not yet written — that is the whole of the remaining build.</p>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Capability</th><th>Status</th><th>External dependency</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Scoring, confidence, hard stops</strong></td><td><span class="pill p-built">Built</span></td><td>None</td></tr>
+          <tr><td><strong>Business case model</strong></td><td><span class="pill p-built">Built</span></td><td>None</td></tr>
+          <tr><td><strong>Intake set, flow model, lifecycle</strong></td><td><span class="pill p-built">Built</span></td><td>None</td></tr>
+          <tr><td><strong>Schema, tenant isolation, audit trigger</strong></td><td><span class="pill p-built">Built</span></td><td>Postgres + pgvector</td></tr>
+          <tr><td><strong>Startup config validation</strong></td><td><span class="pill p-must">Must build</span></td><td>None — must fail closed</td></tr>
+          <tr><td><strong>Authentication &amp; membership</strong></td><td><span class="pill p-must">Must build</span></td><td>Supabase Auth or equivalent</td></tr>
+          <tr><td><strong>Private storage &amp; upload safety</strong></td><td><span class="pill p-must">Must build</span></td><td>Object storage + malware scanner</td></tr>
+          <tr><td><strong>Document parsing &amp; citation</strong></td><td><span class="pill p-must">Must build</span></td><td>Parser stack</td></tr>
+          <tr><td><strong>LLM &amp; embedding adapters</strong></td><td><span class="pill p-must">Must build</span></td><td>Anthropic API key · embedding model</td></tr>
+          <tr><td><strong>Background jobs</strong></td><td><span class="pill p-must">Must build</span></td><td>Inngest or equivalent queue</td></tr>
+          <tr><td><strong>Audit writer &amp; retention sweep</strong></td><td><span class="pill p-must">Must build</span></td><td>Scheduler</td></tr>
+          <tr><td><strong>Intake &amp; review interface</strong></td><td><span class="pill p-must">Must build</span></td><td>None</td></tr>
+          <tr><td><strong>Report rendering &amp; export</strong></td><td><span class="pill p-should">Should build</span></td><td>Headless Chromium for PDF</td></tr>
+          <tr><td><strong>AI evaluation gates</strong></td><td><span class="pill p-should">Should build</span></td><td>Gold sets incl. adversarial fixtures</td></tr>
+          <tr><td><strong>Error tracking &amp; tracing</strong></td><td><span class="pill p-opt">Optional</span></td><td>Sentry · OpenTelemetry</td></tr>
+          <tr><td><strong>Product analytics</strong></td><td><span class="pill p-opt">Optional</span></td><td>Off by default — content properties restricted</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout" style="margin-top:1rem">
+      <strong>Contractual gates, before any real client evidence:</strong> cross-tenant security tests, an independent penetration test, signed data-processing agreements with every subprocessor including the model provider, and a deletion path proven end to end.
+    </div>
+  </section>
+
+  <!-- ── Scale profiles ─────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <span class="tag">10 — Production scale</span>
+      <h2>What a large deployment looks like</h2>
+      <p class="lede">Two modelled enterprise profiles, sized from the system's own limits: 200 files and 2 GB per scan, roughly 25 campaigns per brand, exactly two competitors, and two model passes per document.</p>
+    </div>
+    <div class="grid g2">
+      <div class="profile">
+        <span class="tag">Profile A — global semiconductor</span>
+        <h3>Intel-scale</h3>
+        <p class="sub">Many business units, many markets, heavy legal and claims review</p>
+        <div class="rows">
+          <div class="row"><span>Workspaces (one per BU)</span><span>10–15</span></div>
+          <div class="row"><span>Scans per year</span><span>20–30</span></div>
+          <div class="row"><span>Evidence files per scan</span><span>150–200</span></div>
+          <div class="row"><span>Campaigns per scan</span><span>25–40</span></div>
+          <div class="row"><span>Chunks under retrieval</span><span>~1.5M</span></div>
+          <div class="row"><span>Concurrent scans in flight</span><span>4–6</span></div>
+          <div class="row"><span>Dominant constraint</span><span>Token cost</span></div>
+          <div class="row"><span>Likely blocking hard stop</span><span>Data residency</span></div>
+        </div>
+      </div>
+      <div class="profile">
+        <span class="tag">Profile B — regional appliance brand</span>
+        <h3>Toshiba AirCon-scale</h3>
+        <p class="sub">Fewer units, seasonal demand peaks, distributor and channel marketing</p>
+        <div class="rows">
+          <div class="row"><span>Workspaces</span><span>2–4</span></div>
+          <div class="row"><span>Scans per year</span><span>4–8</span></div>
+          <div class="row"><span>Evidence files per scan</span><span>60–120</span></div>
+          <div class="row"><span>Campaigns per scan</span><span>25–30</span></div>
+          <div class="row"><span>Chunks under retrieval</span><span>~250K</span></div>
+          <div class="row"><span>Concurrent scans in flight</span><span>1–2</span></div>
+          <div class="row"><span>Dominant constraint</span><span>Seasonal burst</span></div>
+          <div class="row"><span>Likely blocking hard stop</span><span>No daily user named</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g3" style="margin-top:1rem">
+      <div class="card"><h3>Cost is tokens, not compute</h3><p>Two-pass extraction over 200 documents is the bill. Prompt caching on the stable prefix and routing classification to a small model are the levers that matter.</p></div>
+      <div class="card"><h3>Postgres is sufficient</h3><p>Thousands of chunks per assessment, not millions per query. pgvector holds at this scale; add an index before adding a vendor.</p></div>
+      <div class="card"><h3>Isolation is per workspace</h3><p>One business unit cannot read another's evidence — enforced by row-level security, and proven by tests that connect as the real application role.</p></div>
+    </div>
+
+    <p class="note"><strong>Intel and Toshiba are named here only as recognisable size archetypes.</strong> They are not customers, and none of the figures above come from their systems or their data. Every number is modelled from SignalScan's own documented limits and should be re-derived against a real client's actual document volumes before it appears in a proposal.</p>
+  </section>
+
+  <footer>
+    SignalScan — evidence and decision system. Source, quickstart, demo runbook and the full production path:
+    <a href="https://github.com/debster9755/signalscan">github.com/debster9755/signalscan</a><br>
+    All figures shown derive from the synthetic Northstar Cloud fixture. No real client data appears anywhere in this document or the repository.
+  </footer>
+</div>
+</body>
+</html>

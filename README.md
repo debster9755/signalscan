@@ -220,6 +220,7 @@ Only `localhost:3000` needs no setup. The other three appear once `pnpm dev:serv
 Windows steps, day-to-day workflow and troubleshooting: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
 Presenting this to someone? **[docs/DEMO.md](docs/DEMO.md)** is a timed run sheet.
 Taking it to real client data? **[docs/PRODUCTION.md](docs/PRODUCTION.md)** is the production path.
+Briefing an executive? **[docs/signalscan-brief.html](docs/signalscan-brief.html)** is a one-page visual overview (open it in a browser — GitHub shows `.html` as source).
 
 ---
 
