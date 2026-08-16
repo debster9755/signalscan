@@ -100,6 +100,8 @@ Four analysis stages carry the work:
 - No hosted deployment or background workers
 - No E2E or AI-eval suites — `pnpm test:e2e` and `pnpm test:evals` are configured and exit cleanly, but there is nothing to run yet
 
+What it would take to run this on real client evidence — the build gap, the ingestion formats, the keys and the compliance gates — is set out in **[docs/PRODUCTION.md](docs/PRODUCTION.md)**.
+
 **Will never do, by design:**
 
 - Let a model calculate a score, a priority band or a business-case figure
@@ -217,6 +219,7 @@ Only `localhost:3000` needs no setup. The other three appear once `pnpm dev:serv
 
 Windows steps, day-to-day workflow and troubleshooting: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
 Presenting this to someone? **[docs/DEMO.md](docs/DEMO.md)** is a timed run sheet.
+Taking it to real client data? **[docs/PRODUCTION.md](docs/PRODUCTION.md)** is the production path.
 
 ---
 
