@@ -63,6 +63,9 @@ importers:
       '@signalscan/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       next:
         specifier: ^16.3.1
         version: 16.3.1(@playwright/test@1.62.1)(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)

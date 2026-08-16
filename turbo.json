@@ -4,7 +4,8 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": ["DATABASE_URL", "DATABASE_DIRECT_URL", "NEXT_PUBLIC_APP_URL", "APP_ENV", "LOG_LEVEL"]
     },
     "typecheck": {
       "dependsOn": ["^build"],
@@ -15,7 +16,9 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["DATABASE_URL", "DATABASE_DIRECT_URL", "NEXT_PUBLIC_APP_URL", "APP_ENV", "LOG_LEVEL"]
     }
-  }
+  },
+  "globalEnv": ["NODE_ENV"]
 }

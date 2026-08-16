@@ -11,6 +11,8 @@
  * of one. Which path produced the page is stated on the page itself — a UI that
  * quietly swaps its data source is how a demo starts lying.
  */
+// Must come first: this module reads process.env.DATABASE_URL below.
+import './load-env';
 import postgres from 'postgres';
 import {
   calculateScenario,
