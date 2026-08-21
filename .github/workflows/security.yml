@@ -37,14 +37,29 @@ jobs:
           # Full history so a secret committed earlier and later removed is
           # still found — it is still in the objects, and still leaked.
           fetch-depth: 0
-      - name: Scan for committed secrets
-        uses: gitleaks/gitleaks-action@v2
+      # The gitleaks action derives its scan range from the push event
+      # (`<before>^..<after>`), which has no valid parent on an initial push and
+      # aborts having scanned zero bytes — a green-looking no-op at best, a hard
+      # failure at worst. Running the binary directly scans the whole history
+      # every time, which is what the fetch-depth above is for.
+      - name: Install gitleaks
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.24.3
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+      - name: Scan full history for committed secrets
+        run: gitleaks detect --source . --redact --exit-code 1 --verbose
 
   codeql:
     name: CodeQL
     runs-on: ubuntu-latest
+    # Code scanning on a private repository needs GitHub Advanced Security.
+    # Without it the analyze step fails with "Code scanning is not enabled for
+    # this repository", so this is skipped rather than left permanently red.
+    # It starts working the moment the repository is made public or GHAS is on.
+    if: github.event.repository.visibility == 'public'
     permissions:
       security-events: write
       contents: read
